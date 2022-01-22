@@ -1,0 +1,60 @@
+{
+  "name": "web",
+  "app": "build/index.html",
+  "targets": {
+    "app": {
+      "publicUrl": "./"
+    }
+  },
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "web": "parcel serve public/index.html",
+    "build": "rimraf build && cross-env REACT_APP_ENV=production parcel build public/index.html --dist-dir build/ --no-source-maps --no-scope-hoist --no-cache --public-url ."
+  },
+  "dependencies": {
+    "@babel/runtime-corejs3": "7.13.10",
+    "@parcel/transformer-image": "^2.0.0-nightly.1981",
+    "@pixi/loaders": "^6.2.1",
+    "@pixi/tilemap": "^3.2.2",
+    "@react-three/drei": "^8.6.2",
+    "@react-three/fiber": "^7.0.25",
+    "@react-three/flex": "^0.7.0",
+    "@solana/spl-token-registry": "0.2.46",
+    "@solana/wallet-adapter-react": "^0.15.2",
+    "@svgdotjs/svg.js": "3.0.16",
+    "@widgetbot/react-embed": "1.4.0",
+    "btoa": "1.2.1",
+    "chroma-js": "2.1.1",
+    "connected-react-router": "6.8.0",
+    "core-js": "3.8.3",
+    "framer-motion": "^6.0.0",
+    "framer-motion-3d": "6.0.0",
+    "lodash": "4.17.20",
+    "qrcode.react": "1.0.0",
+    "react-copy-to-clipboard": "5.0.2",
+    "react-helmet-async": "1.0.7",
+    "react-i18next": "11.8.5",
+    "react-pixi-fiber": "^0.14.3",
+    "react-router-dom": "6.2.1",
+    "react-three-fiber": "^6.0.13",
+    "regenerator-runtime": "0.13.7",
+    "super-expressive": "1.4.0",
+    "three": "^0.136.0",
+    "websocket": "1.0.34"
+  },
+  "devDependencies": {
+    "@babel/core": "7.13.10",
+    "@babel/preset-env": "7.13.10",
+    "@parcel/config-default": "2.0.1",
+    "@parcel/transformer-babel": "2.0.1",
+    "@parcel/transformer-js": "2.0.1",
+    "@parcel/transformer-raw": "2.0.1",
+    "@parcel/transformer-yaml": "2.0.1",
+    "parcel": "2.0.1"
+  },
+  "peerDependencies": {
+    "history": "5.0.0",
+    "react-router": "5.0.0"
+  }
+}

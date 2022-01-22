@@ -1,0 +1,8 @@
+component: website
+name: legacy-prod
+stage: prod
+
+inputs:
+  src: ./build
+  domain: https://legacy.com
+  region: us-east-1
