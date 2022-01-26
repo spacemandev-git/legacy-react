@@ -37,16 +37,6 @@ const configureRemix = () => {
         current_item.next(undefined);
       }
     },
-    removeBubble({ key }) {
-      const current_list = bubbles.getValue();
-      const current_item = current_list.get(key);
-
-      if (current_item) {
-        current_item.next(undefined);
-      }
-    },
-    refs,
-    bubbles,
   };
 };
 

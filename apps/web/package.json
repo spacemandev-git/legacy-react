@@ -46,12 +46,12 @@
   "devDependencies": {
     "@babel/core": "7.13.10",
     "@babel/preset-env": "7.13.10",
-    "@parcel/config-default": "2.0.1",
-    "@parcel/transformer-babel": "2.0.1",
-    "@parcel/transformer-js": "2.0.1",
-    "@parcel/transformer-raw": "2.0.1",
-    "@parcel/transformer-yaml": "2.0.1",
-    "parcel": "2.0.1"
+    "@parcel/config-default": "2.2.1",
+    "@parcel/transformer-babel": "2.2.1",
+    "@parcel/transformer-js": "2.2.1",
+    "@parcel/transformer-raw": "2.2.1",
+    "@parcel/transformer-yaml": "2.2.1",
+    "parcel": "2.2.1"
   },
   "peerDependencies": {
     "history": "5.0.0",
