@@ -73,7 +73,7 @@ export const GlobalStyles = createGlobalStyle`
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE 10+ */
     box-sizing: border-box;
-    user-select: none;
+    /* user-select: none; */
     font-weight: 500;
     &::-webkit-scrollbar {
       display: none;
