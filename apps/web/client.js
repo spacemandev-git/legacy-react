@@ -5,42 +5,29 @@ import { render } from 'react-dom';
 import { HashRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import 'core/language/i18n';
-import App from './App';
-import logoImg from 'design/assets/phaser.png';
 import Phaser from 'phaser';
+import App from './App';
+import { MapScene } from './src/views/game/scenes/MapScene';
+import CardsScene from './src/views/game/scenes/Cards';
+import eye from 'design/assets/lance-overdose-loader-eye.png';
+import box from 'design/assets/128x128-v2.png';
+import { CardScene } from './src/views/game/scenes/CardScene';
 
-const config = {
+var config = {
   type: Phaser.AUTO,
-  parent: 'phaser-example',
   width: 800,
   height: 600,
-  scene: {
-    preload: preload,
-    create: create,
-  },
+  backgroundColor: '#000000',
+  parent: 'phaser-example',
+  pixelArt: true,
+  scene: [MapScene, CardScene],
 };
-const game = new Phaser.Game(config);
-function preload() {
-  this.load.image('logo', logoImg);
-}
-function create() {
-  const logo = this.add.image(400, 150, 'logo');
-  this.tweens.add({
-    targets: logo,
-    y: 450,
-    duration: 2000,
-    ease: 'Power2',
-    yoyo: true,
-    loop: -1,
-  });
-}
+
+var game = new Phaser.Game(config);
 
 const app = (
   <HashRouter>
-    <HelmetProvider>
-      <App />
-      {game}
-    </HelmetProvider>
+    <HelmetProvider></HelmetProvider>
   </HashRouter>
 );
 

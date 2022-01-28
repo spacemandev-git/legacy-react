@@ -9,6 +9,7 @@ import { PUBLIC_HOME, PUBLIC_GAME } from 'core/routes/routes';
 import Game from './src/views/game/Game';
 import Home from './src/views/home/Home';
 import { useMobileHeight } from 'core/hooks/useMobileHeight';
+import Remix from './src/remix/Remix';
 
 const withThemes = ({ palette = 'dark' }) => ({
   ...theme[palette],
@@ -24,6 +25,7 @@ const App = () => {
   return (
     <ThemeProvider theme={withThemes({ palette: theme })}>
       <_app>
+        <Remix />
         <GlobalStyles />
         <_view $vh={vh}>
           <Routes>

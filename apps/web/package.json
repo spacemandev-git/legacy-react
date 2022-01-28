@@ -36,6 +36,7 @@
     "react-copy-to-clipboard": "5.0.2",
     "react-helmet-async": "1.0.7",
     "react-i18next": "11.8.5",
+    "react-phaser-fiber": "^0.2.4",
     "react-pixi-fiber": "^0.14.3",
     "react-router-dom": "6.2.1",
     "react-three-fiber": "^6.0.13",
