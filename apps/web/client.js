@@ -6,14 +6,12 @@ import { HashRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import 'core/language/i18n';
 import Phaser from 'phaser';
-import App from './App';
 import { MapScene } from './src/views/game/scenes/MapScene';
-import CardsScene from './src/views/game/scenes/Cards';
-import eye from 'design/assets/lance-overdose-loader-eye.png';
-import box from 'design/assets/128x128-v2.png';
 import { CardScene } from './src/views/game/scenes/CardScene';
+import Remix from './src/remix/Remix';
+import { BehaviorSubject } from 'rxjs';
 
-var config = {
+const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
@@ -23,11 +21,15 @@ var config = {
   scene: [MapScene, CardScene],
 };
 
-var game = new Phaser.Game(config);
+const game = new Phaser.Game(config);
+
+export const subscriber = new BehaviorSubject({});
 
 const app = (
   <HashRouter>
-    <HelmetProvider></HelmetProvider>
+    <HelmetProvider>
+      <Remix />
+    </HelmetProvider>
   </HashRouter>
 );
 
