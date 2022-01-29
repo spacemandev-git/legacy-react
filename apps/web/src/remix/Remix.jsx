@@ -1,9 +1,9 @@
 import React from 'react';
 import { useRemixOrigin } from 'core/hooks/remix/useRemixOrigin';
-import { GAME_SCENE } from 'core/remix/state';
+import { GAME_SCENE, GAME_TEST } from 'core/remix/state';
 
 const Remix = () => {
-  const [game, setGame] = useRemixOrigin(GAME_SCENE, null);
+  const [game, setGame] = useRemixOrigin(GAME_TEST, false);
 
   return null;
 };
