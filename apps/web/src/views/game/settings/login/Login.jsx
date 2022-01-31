@@ -1,32 +1,24 @@
 import React, { useState } from 'react';
-import { web3 } from '@project-serum/anchor';
 import { _create, _import, _login, _pubKey } from './Login.styled';
 import { bs58 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
+import { createLocalWallet } from '../../../../../../libs/chain';
 
 const Login = () => {
   const [pubKey, setPubKey] = useState();
   const [value, setValue] = useState('');
 
-  const handleCreateBurner = () => {
-    let keypair = web3.Keypair.generate();
-    console.log(keypair);
-
-    localStorage.setItem('secretKey', bs58.encode(keypair.secretKey));
-    localStorage.setItem('pubKey', new PublicKey(keypair.publicKey).toBase58());
-    setPubKey(new PublicKey(keypair.publicKey).toBase58());
+  const handleCreateBurner = async () => {
+    const { wallet } = await createLocalWallet();
+    console.log(wallet);
+    setPubKey(new PublicKey(wallet?.publicKey).toBase58());
   };
 
   const handleImportKey = (e) => {
     if (e.key === 'Enter') {
-      let keypair = web3.Keypair.fromSecretKey(bs58.decode(value));
-
-      localStorage.setItem('secretKey', bs58.encode(keypair.secretKey));
-      localStorage.setItem(
-        'pubKey',
-        new PublicKey(keypair.publicKey).toBase58(),
-      );
-      setPubKey(new PublicKey(keypair.publicKey).toBase58());
+      localStorage.setItem(LOCAL_SECRET, bs58.encode(value));
+      const { wallet } = createLocalWallet();
+      setPubKey(new PublicKey(wallet.publicKey).toBase58());
     }
   };
 
