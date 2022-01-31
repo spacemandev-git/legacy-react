@@ -4,6 +4,10 @@ export const light = {
     texture: '#314068',
     dark_texture: '#101219',
   },
+  settings: {
+    border: '#fff',
+    font: '#fff',
+  },
   exp: {
     loading: '#6b4906',
     texture: '#ffba1a',
