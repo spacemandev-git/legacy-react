@@ -11,19 +11,32 @@ import { Setup, PDA } from './type';
 export class PlayerMovement {
   constructor(private provider: Provider, private program: Program) {}
 
-  async initializePlayer() {
-    const [contractAdmin, contractAdminBump] = await findProgramAddressSync(
-      [this.provider.wallet.publicKey.toBuffer()],
+  async initializePlayer(playerName: string) {
+    const [playerAccount, playerBump] = await findProgramAddressSync(
+      [
+        Buffer.from(localStorage.getItem('gameName') || ''),
+        this.provider.wallet.publicKey.toBuffer(),
+      ],
       this.program.programId,
     );
 
-    const initializePlayer = this.program.rpc.initialize(contractAdminBump, {
-      accounts: {
-        adminAccount: contractAdmin,
-        admin: this.provider.wallet.publicKey,
-        systemProgram: SystemProgram.programId,
+    const [gameAccount] = await findProgramAddressSync(
+      [Buffer.from(localStorage.getItem('gameName') || '')],
+      this.program.programId,
+    );
+
+    const initializePlayer = this.program.rpc.initPlayer(
+      playerBump,
+      playerName,
+      {
+        accounts: {
+          game: gameAccount,
+          playerAccount: playerAccount,
+          player: this.provider.wallet.publicKey,
+          systemProgram: SystemProgram.programId,
+        },
       },
-    });
+    );
     return initializePlayer;
   }
 

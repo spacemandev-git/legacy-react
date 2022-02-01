@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { GlobalStyles, _app, _view } from 'design/styles/global';
 import { styles, theme, zindex } from 'design';
@@ -21,6 +21,13 @@ const App = () => {
   const { vh } = useMobileHeight();
   const [language, setLanguage] = useRemixOrigin(USER_LANGUAGE, 'en');
   const [theme] = useRemixOrigin(USER_THEME, 'light');
+
+  useEffect(() => {
+    // Set current active game but can be changed in settings
+    if (!localStorage.getItem('gameName')) {
+      localStorage.setItem('gameName', 'testgame');
+    }
+  });
 
   return (
     <ThemeProvider theme={withThemes({ palette: theme })}>

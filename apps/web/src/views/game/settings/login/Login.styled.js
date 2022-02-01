@@ -10,7 +10,7 @@ export const _login = styled.div`
 `;
 
 export const _create = styled.button`
-  margin-left: 16px;
+  margin-right: 16px;
   padding: 4px 8px;
 `;
 
@@ -23,4 +23,9 @@ export const _import = styled.input`
 
 export const _pubKey = styled.div`
   margin-top: 16px;
+`;
+
+export const _description = styled.p`
+  padding-bottom: 8px;
+  color: gray;
 `;

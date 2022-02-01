@@ -1,25 +1,13 @@
-import { BN, Provider, web3 } from '@project-serum/anchor';
-import BigNumber from 'bignumber.js';
+import { Provider, web3 } from '@project-serum/anchor';
 import { Program } from '@project-serum/anchor';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
-
-import {
-  confirmTransaction,
-  findAssociatedTokenAccount,
-  getParsedMultipleAccountsInfo,
-  PDA,
-  sendTransaction,
-  Setup,
-} from '..';
-// import { features, unit_mod, units } from '../configs';
-import { Feature, UnitMod, LegacyConfig } from '../configs';
-import { SystemProgram } from '@solana/web3.js';
-import { getPDA } from '../utils/utils';
+import { Feature, LegacyConfig } from '../configs';
 import { UnitActions } from './UnitActions';
 import { PlayerMovement } from './Player';
 import { CardActions } from './CardActions';
 import * as anchor from '@project-serum/anchor';
 import { LEGACY_PROGRAM_ID } from '.';
+import { getPDA } from '../utils/utils';
 
 export class LegacyProgram {
   legacyGameConfig: LegacyConfig;
@@ -28,13 +16,16 @@ export class LegacyProgram {
   cardActions: CardActions;
   program: Program;
 
-  constructor(private provider: Provider, overrideConfig: LegacyConfig) {
+  constructor(
+    private provider: Provider,
+    program: Program,
+    overrideConfig?: LegacyConfig,
+  ) {
     this.legacyGameConfig = overrideConfig;
-    this.connect().then((program) => {
-      this.unitActions = new UnitActions(this.provider, program);
-      this.playerMovement = new PlayerMovement(this.provider, program);
-      this.cardActions = new CardActions(this.provider, program);
-    });
+    this.program = program;
+    this.unitActions = new UnitActions(this.provider, program);
+    this.playerMovement = new PlayerMovement(this.provider, program);
+    this.cardActions = new CardActions(this.provider, program);
   }
 
   /**
@@ -61,14 +52,10 @@ export class LegacyProgram {
     };
   }
 
-  async connect() {
-    const idl = await anchor.Program.fetchIdl(LEGACY_PROGRAM_ID, this.provider);
-    if (!idl) throw 'IDL not found';
-    this.program = new anchor.Program(idl, LEGACY_PROGRAM_ID, this.provider);
-    return this.program;
+  async getGameAccount(gameId: string) {
+    const gameacc = await getPDA([Buffer.from(gameId)], this.program.programId);
+    return await this.program.account.game.fetch(gameacc.account);
   }
-
-  
 
   async create_game(name: string) {
     const [game_acc, game_bmp] = findProgramAddressSync(
@@ -170,33 +157,31 @@ export class LegacyProgram {
 
   async initGameConfiguration(name: string, gameAccount: string) {
     let id = 1;
-    const features = await this.initFeatures(gameAccount);
-    const cards = await this.initCards(name, gameAccount, id);
-    const mods = await this.initMods(name, gameAccount, id);
-    
+    // const features = await this.initFeatures(gameAccount);
+    // const cards = await this.initCards(name, gameAccount, id);
+    // const mods = await this.initMods(name, gameAccount, id);
+
     //Print Game Acc and Total Cards Uploaded
     console.log(`Uploaded ${id} Cards`);
 
     const account = await this.program.account.game.fetch(gameAccount);
-    console.log("Game Account: ");
+    console.log('Game Account: ');
     console.log(JSON.stringify(account));
     // await fs.writeFile('migrations/game_acc.json', JSON.stringify(account));
   }
 
   async initFeatures(gameAccount: string) {
-
     let features: Feature[] = [];
 
     for (let f of this.legacyProgram.featureConfig) {
       features.push({
         weight: new anchor.BN(f.weight),
         name: f.name,
-        nextScan: new anchor.BN(f.next_scan),
+        scan_recovery: new anchor.BN(f.weight),
+        drop_table: 'legendary',
+        link: '',
       });
     }
-      return features;
-    }
-
 
     //Need to cast it to Rust Enum
     const rust_features = this.legacyProgram.featureConfig.map((f) => {
@@ -224,7 +209,7 @@ export class LegacyProgram {
         authority: this.provider.wallet.publicKey,
       },
     });
-    console.log('Added Features');
+    return features;
   }
 
   async initMods(name: string, gameAccount: string, id: number) {

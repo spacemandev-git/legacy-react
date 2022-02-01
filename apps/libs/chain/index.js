@@ -7,7 +7,7 @@ export const LOCAL_SECRET = 'LOCAL_SECRET';
 
 export const createLocalWallet = async () => {
   // connect anchor
-  const conn = new anchor.web3.Connection('https://api.devnet.solana.com');
+  const conn = new anchor.web3.Connection('http://127.0.0.1:8899');
 
   // generate a local wallet
   let secret;
@@ -25,19 +25,23 @@ export const createLocalWallet = async () => {
       LOCAL_SECRET,
       bs58.encode(wallet?._keypair?.secretKey),
     );
-    await conn.requestAirdrop(wallet.publicKey, 1e9 * 10);
+    // airdropping not working
+    await conn.requestAirdrop(wallet.publicKey, 100);
   }
 
-  const program = getProgram(conn, wallet);
+  const { program, provider } = getProgram(conn, wallet);
 
-  return { conn, wallet, program };
+  return { conn, wallet, program, provider };
 };
 
 export const getProgram = (conn, wallet) => {
   const _provider = new anchor.Provider(conn, new NodeWallet(wallet), {});
-  return new anchor.Program(
-    legacySOLIDL,
-    'Cz4TVYSDxwobuiKdtZY8ejp3hWL7WfCbPNYGUqnNBVSe',
-    _provider,
-  );
+  return {
+    program: new anchor.Program(
+      legacySOLIDL,
+      'Cz4TVYSDxwobuiKdtZY8ejp3hWL7WfCbPNYGUqnNBVSe',
+      _provider,
+    ),
+    provider: _provider,
+  };
 };
