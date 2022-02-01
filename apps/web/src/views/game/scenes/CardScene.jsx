@@ -14,6 +14,7 @@ export const CardScene = CardProps(
       props = this.props;
       this.title;
       this.subscriber = subscriber;
+      this.previous = {};
     },
 
     preload: function () {
@@ -72,8 +73,28 @@ export const CardScene = CardProps(
         .circle(348, 36, 16, 0x8d94f6)
         .setInteractive({ cursor: 'pointer' });
 
+      zoom_out.on(
+        'clicked',
+        () => {
+          const state = subscriber.getValue();
+          setState({ ...state, zoom: state.zoom - 0.1 });
+        },
+        this,
+      );
+
+      zoom_in.on(
+        'clicked',
+        () => {
+          const state = subscriber.getValue();
+          setState({ ...state, zoom: state.zoom + 0.1 });
+        },
+        this,
+      );
+
       // Test drag and drop onto tile
-      const eye_img = this.add.sprite(86, 200, 'eye').setInteractive();
+      const eye_img = this.add
+        .sprite(86, 200, 'eye')
+        .setInteractive({ cursor: 'pointer' });
 
       eye_img.displayWidth = 88;
       eye_img.displayHeight = 88;
@@ -87,51 +108,64 @@ export const CardScene = CardProps(
       this.title.setShadow(2, 2, '#333333', 2, true, true);
 
       // Control Hover Start
-      this.input.on('pointerover', function (
-        pointer,
-        gameObject,
-        dragX,
-        dragY,
-      ) {
-        gameObject.x = dragX;
-        gameObject.y = dragY;
+      this.input.on('pointerover', function (pointer, gameObject) {
+        const state = subscriber.getValue();
         setState({ ...state, hello: 'test' });
       });
 
       // Control Hover End
       this.input.on('pointerout', function (pointer, gameObject) {
         // gameObject?.setTint(0xff0000);
+        const state = subscriber.getValue();
 
-        console.log('state', state);
-        console.log(gameObject);
         setState({ ...state, hello: 'test' });
       });
+
+      // Event Drag Start
+      this.input.on('dragstart', function (pointer, gameObject) {
+        eye_img.setAlpha(0.2);
+      });
+
+      // Event Drag
+      this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+        gameObject.x = dragX;
+        gameObject.y = dragY;
+      });
+
+      // Event Drag End
+      this.input.on('dragend', function (pointer, gameObject) {
+        eye_img.setAlpha(1);
+        const state = subscriber.getValue();
+        setState({
+          ...state,
+          drop: {
+            gameObject,
+            pointer,
+          },
+        });
+        console.log(pointer);
+      });
+
+      // Event Click
+      this.input.on(
+        'gameobjectup',
+        function (pointer, gameObject) {
+          gameObject.emit('clicked', gameObject);
+        },
+        this,
+      );
 
       // Add Cards to empty card slots
 
       // Text page numbers
-
-      // var image = this.add.sprite(600, 96, 'eye').setInteractive();
-      // image.setScale(0.5);
-
-      // console.log(image);
-
-      // this.input.setDraggable(image);
-
-      // this.input.on('pointerover', function (pointer, gameObject) {
-      //
-      //     gameObject.setTint(0xff0000);
-      //
-      // });
-      //
-
-      this.input.on('dragend', function (pointer, gameObject) {
-        gameObject.clearTint();
-      });
     },
-
     update: function () {
-      // console.log(this.state.getValue());
+      // const state = this.subscriber.getValue();
+      // const { setState } = props;
+      //
+      //
+      //
+      // this.previous = {...state};
     },
   }),
 );

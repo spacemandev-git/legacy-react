@@ -23,7 +23,9 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-export const subscriber = new BehaviorSubject({});
+export const subscriber = new BehaviorSubject({
+  zoom: 1,
+});
 
 const app = (
   <HashRouter>
