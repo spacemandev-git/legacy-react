@@ -1,1 +1,1 @@
-export * from "./stake";
+export * from './legacy';

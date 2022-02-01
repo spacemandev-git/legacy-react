@@ -1,19 +1,7 @@
-import { Idl, Provider, web3 } from "@project-serum/anchor";
+import { Idl, Provider, web3 } from '@project-serum/anchor';
 
-import { TokenConfig } from "..";
-
-export interface SteakingConfig {
+export interface LegacyConfig {
   deployer: string;
-  tokens: TokenConfig[];
-  channel: string;
-  programId: string;
-  programIdl: Idl;
-}
-
-export interface SteakingConfig {
-  deployer: string;
-  tokens: TokenConfig[];
-  channel: string;
   programId: string;
   programIdl: Idl;
 }
@@ -26,7 +14,7 @@ export interface CreateInstructionFunctionResult<T extends unknown> {
 }
 
 export type CreateInstructionFunction<T, U = unknown> = (
-  { provider, config }: { provider: Provider; config?: SteakingConfig },
+  { provider, config }: { provider: Provider; config?: LegacyConfig },
   args: T,
-  overrideConfig?: SteakingConfig
+  overrideConfig?: LegacyConfig,
 ) => Promise<CreateInstructionFunctionResult<U>>;

@@ -8,8 +8,12 @@ const { SystemProgram } = anchor.web3;
 
 import { Setup, PDA } from './type';
 
-export class PlayerMovement {
-  constructor(private provider: Provider, private program: Program) {}
+export class Player {
+  constructor(
+    private provider: Provider,
+    private program: Program,
+    gameAccount?: string,
+  ) {}
 
   async initializePlayer(playerName: string) {
     const [playerAccount, playerBump] = await findProgramAddressSync(
@@ -40,11 +44,18 @@ export class PlayerMovement {
     return initializePlayer;
   }
 
-  async createPlayers(setup: Setup, amtPlayers: number) {
-    return;
-  }
+  async createPlayer() {}
 
-  async spawnPlayers(setup: Setup, players: PDA[]) {
-    return;
+  async getPlayers() {
+    // get all players in the game
+    // DF object info
+    // address: "0x788031553c923a5cd029a9ca707e1a8661cca1a5"
+    // homePlanetId: "00004a7cad8e984bfbb64b33cb123048097e485ba3c5ff50831057e2b1c1ceda"
+    // initTimestamp: 1633080975
+    // lastClaimTimestamp: 0
+    // lastRevealTimestamp: 0
+    // score: 10001
+    // twitter: "chubivan"
+    // getPlayers subscription to look for new players
   }
 }

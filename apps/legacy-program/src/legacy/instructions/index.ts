@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { web3 } from '@project-serum/anchor';
+import { web3 } from '@project-serum/;
 import { LEGACY_PROGRAM_ID } from '../sdk/constants';
 import assert from 'assert';
 import BN from 'bn.js';
@@ -8,6 +8,7 @@ import { Feature } from '../sdk';
 import { CreateInstructionFunction } from './type';
 import { UnitMod } from '..';
 import { SystemProgram } from '@solana/web3.js';
+import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 
 export async function setupCreateGame(
   conn: web3.Connection,
@@ -16,6 +17,8 @@ export async function setupCreateGame(
   game_id: String,
 ) {
   // const contractAdmin = await findContractAdmin(w)
+
+  
 }
 
 export async function findStartLocationAccount(gameId: String) {
@@ -61,6 +64,7 @@ async function getFeatures() {
 }
 
 export async function createGameInstruction(
+  name: string
   gameId: String,
   gameAccountBump: String,
   owner: web3.PublicKey,
@@ -68,8 +72,58 @@ export async function createGameInstruction(
   intialCard: UnitMod,
   accounts: web3.Keypair[],
 ) {
-  // gameAccount.bum
-  return;
+  const [game_acc, game_bmp] = findProgramAddressSync(
+    [Buffer.from(name)],
+    this.program.programId,
+  );
+
+  const [start_loc, start_loc_bmp] = findProgramAddressSync(
+    [
+      Buffer.from(name),
+      new BN(0).toArrayLike(Buffer, 'be', 1),
+      new BN(0).toArrayLike(Buffer, 'be', 1),
+    ],
+    this.program.programId,
+  );
+
+  const starting_card = {
+    dropTable: { basic: {} },
+    id: new BN(0),
+    cardType: { unit: rust_starting_unit },
+  };
+
+  const accounts = {
+    accounts: {
+      authority: this.provider.wallet.publicKey,
+      systemProgram: web3.SystemProgram.programId,
+      gameAccount: game_acc,
+      startLocation: start_loc,
+    },
+  }
+
+  const unit = this.legacyProgram.unitConfig.find((x) => x.name == 'Scout')!;
+  const rust_starting_unit = {
+    name: unit.name,
+    link: unit.link,
+    class: { infantry: {} },
+    power: new BN(unit.power),
+    range: new BN(unit.range),
+    recovery: new BN(unit.recovery),
+    modInf: new BN(unit.modInf),
+    modArmor: new BN(unit.modArmor),
+    modAir: new BN(unit.modAir),
+  };
+
+  const create_game = this.program.rpc.createGame(
+    name,
+    new BN(game_bmp),
+    new BN(start_loc_bmp),
+    starting_card,
+    
+  );
+  console.log('Initalized Game');
+
+  return create_game;
 }
 
 export async function addFeaturesInstruction(

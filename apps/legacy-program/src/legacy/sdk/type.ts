@@ -6,6 +6,19 @@ export type Feature = {
   nextScan: anchor.BN;
 };
 
+export interface TroopAndMod {
+  drop_table: 'none' | 'basic' | 'rare' | 'legendary';
+  name: string;
+  link: string;
+  class: 'Infantry' | 'Armor' | 'Aircraft';
+  power: number;
+  range: number;
+  recovery: number;
+  mod_inf: number;
+  mod_armor: number;
+  mod_air: number;
+}
+
 export type Troop = {
   name: string;
   link: string; //64  example is 63: //https://arweave.net/zt3-t8SHDSck0TLcSuC-hdQb2E0civ0DVMRgwf6sCz0
@@ -18,11 +31,11 @@ export type Troop = {
 };
 
 export interface Setup {
-  contractadmin: PDA;
+  contractAdmin: PDA;
   gameacc: PDA;
   startLoc: PDA;
   gameId: String;
-  program: anchor.Program<any>;
+  program: anchor.Program;
 }
 
 export interface PDA {
