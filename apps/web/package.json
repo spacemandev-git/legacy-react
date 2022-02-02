@@ -13,6 +13,7 @@
     "build": "rimraf build && cross-env REACT_APP_ENV=production parcel build public/index.html --dist-dir build/ --no-source-maps --no-scope-hoist --no-cache --public-url ."
   },
   "dependencies": {
+    "@legacy/client": "file:../legacy-program",
     "@babel/runtime-corejs3": "7.13.10",
     "@parcel/transformer-image": "^2.0.0-nightly.1981",
     "@pixi/loaders": "^6.2.1",

@@ -1,41 +1,35 @@
 import { Provider, web3 } from '@project-serum/anchor';
 import { Program } from '@project-serum/anchor';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
-import { Feature, LegacyConfig } from '../configs';
+import { Feature, LegacyConfig } from './type';
 import { UnitActions } from './UnitActions';
 import { Player } from './Player';
 import { CardActions } from './CardActions';
 import * as anchor from '@project-serum/anchor';
 import { LEGACY_PROGRAM_ID } from '.';
+import { PublicKey } from '@solana/web3.js';
 
-export class LegacyProgram {
-  legacyGameConfig: LegacyConfig;
-  unitActions: UnitActions;
-  playerMovement: Player;
-  cardActions: CardActions;
-  program: Program;
-
-  constructor(
-    private provider: Provider,
-    program: Program,
-    overrideConfig?: LegacyConfig,
-  ) {
-    this.program = program;
+export class LegacyClient {
+  constructor(public program: anchor.Program, public devnet?: boolean) {
     this.legacyGameConfig = this.legacyProgram;
-    this.unitActions = new UnitActions(this.provider, program);
-    this.playerMovement = new Player(this.provider, program);
-    this.cardActions = new CardActions(this.provider, program);
   }
 
   /**
-   * Legacy Program program ID
-   *
-   * @readonly
-   * @memberof LegacyProgram
+   * Create a new client for interacting with the Jet lending program.
+   * @param provider The provider with wallet/network access that can be used to send transactions.
+   * @returns The client
    */
-  get programId() {
-    return new web3.PublicKey(this.legacyGameConfig.programID);
+  static async connect(
+    provider: anchor.Provider,
+    devnet?: boolean,
+  ): Promise<LegacyClient> {
+    const idl = await anchor.Program.fetchIdl(LEGACY_PROGRAM_ID, provider);
+    const program = new anchor.Program(idl, LEGACY_PROGRAM_ID, provider);
+
+    return new LegacyClient(program, devnet);
   }
+
+  legacyGameConfig: LegacyConfig;
 
   /**
    * LegacyProgram config
@@ -60,14 +54,7 @@ export class LegacyProgram {
     return await this.program.account.game.fetch(gameacc);
   }
 
-  async connect() {
-    const idl = await anchor.Program.fetchIdl(LEGACY_PROGRAM_ID, this.provider);
-    if (!idl) throw 'IDL not found';
-    this.program = new anchor.Program(idl, LEGACY_PROGRAM_ID, this.provider);
-    return this.program;
-  }
-
-  async create_game(name: string) {
+  async createGame(name: string, authorityPubkey: PublicKey) {
     const [game_acc, game_bmp] = findProgramAddressSync(
       [Buffer.from(name)],
       this.program.programId,
@@ -104,7 +91,7 @@ export class LegacyProgram {
       starting_card,
       {
         accounts: {
-          authority: this.provider.wallet.publicKey,
+          authority: authorityPubkey,
           systemProgram: anchor.web3.SystemProgram.programId,
           gameAccount: game_acc,
           startLocation: start_loc,
@@ -116,7 +103,12 @@ export class LegacyProgram {
     return create_game;
   }
 
-  async initCards(name: string, gameAccount: string, id: number) {
+  async initCards(
+    name: string,
+    authorityPubkey: PublicKey,
+    gameAccount: string,
+    id: number,
+  ) {
     let unit_promises: Promise<any>[] = [];
     //RPC Cards
     for (let unit of this.legacyProgram.unitConfig) {
@@ -153,7 +145,7 @@ export class LegacyProgram {
           accounts: {
             game: gameAccount,
             cardAcc: card_acc,
-            authority: this.provider.wallet.publicKey,
+            authority: authorityPubkey,
             systemProgram: anchor.web3.SystemProgram.programId,
           },
         }),
@@ -180,7 +172,7 @@ export class LegacyProgram {
     // await fs.writeFile('migrations/game_acc.json', JSON.stringify(account));
   }
 
-  async initFeatures(gameAccount: string) {
+  async initFeatures(gameAccount: string, authorityPubkey: PublicKey) {
     let features: Feature[] = [];
 
     for (let f of this.legacyProgram.featureConfig) {
@@ -216,13 +208,18 @@ export class LegacyProgram {
     await this.program.rpc.addFeatures(rust_features, {
       accounts: {
         game: gameAccount,
-        authority: this.provider.wallet.publicKey,
+        authority: authorityPubkey,
       },
     });
     return features;
   }
 
-  async initMods(name: string, gameAccount: string, id: number) {
+  async initMods(
+    name: string,
+    authorityPubkey: PublicKey,
+    gameAccount: string,
+    id: number,
+  ) {
     let mod_promises: Promise<any>[] = [];
     for (let mod of this.legacyGameConfig.modConfig) {
       const rust_mod = {
@@ -255,7 +252,7 @@ export class LegacyProgram {
           accounts: {
             game: gameAccount,
             cardAcc: card_acc,
-            authority: this.provider.wallet.publicKey,
+            authority: authorityPubkey,
             systemProgram: anchor.web3.SystemProgram.programId,
           },
         }),

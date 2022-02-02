@@ -8,7 +8,7 @@ import { CreateInstructionFunction } from './type';
 import { SystemProgram } from '@solana/web3.js';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 import { web3 } from '@project-serum/anchor';
-import { TroopAndMod } from '../configs';
+import { TroopAndMod } from '../sdk/type';
 
 export async function setupCreateGame(
   conn: web3.Connection,

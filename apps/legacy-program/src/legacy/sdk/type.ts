@@ -1,12 +1,6 @@
 import * as anchor from '@project-serum/anchor';
 import { PublicKey } from '@solana/web3.js';
 
-export type Feature = {
-  name: string;
-  weight: anchor.BN;
-  nextScan: anchor.BN;
-};
-
 export interface TroopAndMod {
   drop_table: 'none' | 'basic' | 'rare' | 'legendary';
   name: string;
@@ -30,6 +24,34 @@ export type Troop = {
   modArmor: anchor.BN; //8
   modAir: anchor.BN; //8,
 };
+
+export interface Feature {
+  name: string;
+  scan_recovery: anchor.BN;
+  weight: anchor.BN;
+  link: string;
+  drop_table: 'basic' | 'rare' | 'legendary';
+}
+
+export interface TroopAndMod {
+  drop_table: 'none' | 'basic' | 'rare' | 'legendary';
+  name: string;
+  link: string;
+  class: 'Infantry' | 'Armor' | 'Aircraft';
+  power: number;
+  range: number;
+  recovery: number;
+  modInf: number;
+  modArmor: number;
+  modAir: number;
+}
+
+export interface LegacyConfig {
+  programID: string;
+  unitConfig: TroopAndMod[];
+  modConfig: TroopAndMod[];
+  featureConfig: Feature[];
+}
 
 export interface Setup {
   contractAdmin: PDA;

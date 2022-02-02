@@ -8,13 +8,14 @@
 
 import * as anchor from '@project-serum/anchor';
 import { Program, Provider } from '@project-serum/anchor';
+import { LegacyClient } from './client';
 const { SystemProgram } = anchor.web3;
 import { Locs, Setup, SpawnedPlayers } from './type';
 
 export class UnitActions {
   gameId: string;
   setup: Setup;
-  constructor(private provider: Provider, private program: Program) {}
+  constructor(private client: LegacyClient) {}
   async initLocBySpawn() {
     this;
     return;

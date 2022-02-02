@@ -1,65 +1,62 @@
 import * as anchor from '@project-serum/anchor';
 import { Program, Provider } from '@project-serum/anchor';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
+import { PublicKey } from '@solana/web3.js';
 import { Card, Coords } from '.';
+import { LegacyClient } from './client';
 
 export class CardActions {
-  constructor(private provider: Provider, private program: Program) {}
-  async scanForCards(loc: Coords) {
+  constructor(private client: LegacyClient) {}
+  async scanForCards(
+    gameName: string,
+    playerPublicKey: PublicKey,
+    loc: Coords,
+  ) {
     const [playerAccount] = await findProgramAddressSync(
-      [
-        Buffer.from(localStorage.getItem('gameName') || ''),
-        this.provider.wallet.publicKey.toBuffer(),
-      ],
-      this.program.programId,
+      [Buffer.from(gameName || ''), playerPublicKey.toBuffer()],
+      this.client.program.programId,
     );
 
     const [gameAccount] = await findProgramAddressSync(
-      [Buffer.from(localStorage.getItem('gameName') || '')],
-      this.program.programId,
+      [Buffer.from(gameName || '')],
+      this.client.program.programId,
     );
 
     const [locAccount] = await findProgramAddressSync(
       [
-        Buffer.from(localStorage.getItem('gameName') || ''),
+        Buffer.from(gameName || ''),
         Buffer.from(loc.x.toString()),
         Buffer.from(loc.y.toString()),
       ],
-      this.program.programId,
+      this.client.program.programId,
     );
 
-    const scannedLocation = this.program.rpc.scan({
+    const scannedLocation = this.client.program.rpc.scan({
       accounts: {
         game: gameAccount,
         location: locAccount,
-        player: this.provider.wallet.publicKey,
+        player: playerPublicKey,
         authority: playerAccount,
       },
     });
 
     console.log(scannedLocation);
   }
-  async redeemCard(card: Card) {
+  async redeemCard(gameName: string, playerPublicKey: PublicKey, card: Card) {
     const [playerAccount] = await findProgramAddressSync(
-      [
-        Buffer.from(localStorage.getItem('gameName') || ''),
-        this.provider.wallet.publicKey.toBuffer(),
-      ],
-      this.program.programId,
+      [Buffer.from(gameName || ''), playerPublicKey.toBuffer()],
+      this.client.program.programId,
     );
 
     //Unsure about this one
     const [cardAccount] = await findProgramAddressSync(
-      [
-        Buffer.from(localStorage.getItem('gameName') || ''),
-        Buffer.from(card.id.toString()),
-      ],
-      this.program.programId,
+      [Buffer.from(gameName || ''), Buffer.from(card.id.toString())],
+      this.client.program.programId,
     );
 
-    const redeemedCard = this.program.rpc.redeem({
+    const redeemedCard = this.client.program.rpc.redeem({
       accounts: {
-        player: this.provider.wallet.publicKey,
+        player: playerPublicKey,
         authority: playerAccount,
         card: cardAccount,
       },

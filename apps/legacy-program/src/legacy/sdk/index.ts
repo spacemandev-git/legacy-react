@@ -1,4 +1,4 @@
 export * from './config';
 export * from './constants';
-export * from './LegacyProgram';
+export * from './client';
 export * from './type';
