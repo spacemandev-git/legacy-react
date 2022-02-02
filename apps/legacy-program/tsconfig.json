@@ -1,34 +1,18 @@
 {
-  "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "strictPropertyInitialization": false, 
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": false,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "downlevelIteration": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "strictNullChecks": true,
-    "module": "CommonJS",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
+	"compilerOptions": {
+		"lib": ["es2015"],
+		"module": "commonjs",
+		"target": "es2020",
+		"outDir": "lib",
+		"rootDir": "src",
     "resolveJsonModule": true,
-  },
- "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+
+    "esModuleInterop": true,
+		"declaration": true,
+		"sourceMap": true
+	},
+	"include": [
+		"typings/**/*",
+		"src/**/*"
+	]
 }

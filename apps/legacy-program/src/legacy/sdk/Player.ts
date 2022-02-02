@@ -7,20 +7,17 @@ const { SystemProgram } = anchor.web3;
 //Tests that players can be created
 //Players can generate a start location (the map grows clockwise from max x,y)
 
-export class PlayerMovement {
+export class Player {
   constructor(private provider: Provider, private program: Program) {}
 
-  async initializePlayer(playerName: string) {
+  async initializePlayer(gameName: string, playerName: string) {
     const [playerAccount, playerBump] = await findProgramAddressSync(
-      [
-        Buffer.from(localStorage.getItem('gameName') || ''),
-        this.provider.wallet.publicKey.toBuffer(),
-      ],
+      [Buffer.from(gameName || ''), this.provider.wallet.publicKey.toBuffer()],
       this.program.programId,
     );
 
     const [gameAccount] = await findProgramAddressSync(
-      [Buffer.from(localStorage.getItem('gameName') || '')],
+      [Buffer.from(gameName || '')],
       this.program.programId,
     );
 
@@ -54,23 +51,20 @@ export class PlayerMovement {
     // getPlayers subscription to look for new players
   }
 
-  async initLocBySpawn(loc: Coords) {
+  async initLocBySpawn(gameName: string, loc: Coords) {
     const [playerAccount, playerBump] = await findProgramAddressSync(
-      [
-        Buffer.from(localStorage.getItem('gameName') || ''),
-        this.provider.wallet.publicKey.toBuffer(),
-      ],
+      [Buffer.from(gameName || ''), this.provider.wallet.publicKey.toBuffer()],
       this.program.programId,
     );
 
     const [gameAccount] = await findProgramAddressSync(
-      [Buffer.from(localStorage.getItem('gameName') || '')],
+      [Buffer.from(gameName || '')],
       this.program.programId,
     );
 
     const [locAccount] = await findProgramAddressSync(
       [
-        Buffer.from(localStorage.getItem('gameName') || ''),
+        Buffer.from(gameName || ''),
         Buffer.from(loc.x.toString()),
         Buffer.from(loc.y.toString()),
       ],
@@ -97,23 +91,20 @@ export class PlayerMovement {
   }
 
   //place card if location is init already
-  async playCard(loc: Coords, card: Card) {
+  async playCard(gameName: string, loc: Coords, card: Card) {
     const [playerAccount] = await findProgramAddressSync(
-      [
-        Buffer.from(localStorage.getItem('gameName') || ''),
-        this.provider.wallet.publicKey.toBuffer(),
-      ],
+      [Buffer.from(gameName || ''), this.provider.wallet.publicKey.toBuffer()],
       this.program.programId,
     );
 
     const [gameAccount] = await findProgramAddressSync(
-      [Buffer.from(localStorage.getItem('gameName') || '')],
+      [Buffer.from(gameName || '')],
       this.program.programId,
     );
 
     const [locAccount] = await findProgramAddressSync(
       [
-        Buffer.from(localStorage.getItem('gameName') || ''),
+        Buffer.from(gameName || ''),
         Buffer.from(loc.x.toString()),
         Buffer.from(loc.y.toString()),
       ],
@@ -131,23 +122,24 @@ export class PlayerMovement {
     console.log(playedCard);
   }
 
-  private async prepTroopAccounts(originLoc: Coords, destinationLoc: Coords) {
+  private async prepTroopAccounts(
+    gameName: string,
+    originLoc: Coords,
+    destinationLoc: Coords,
+  ) {
     const [playerAccount] = await findProgramAddressSync(
-      [
-        Buffer.from(localStorage.getItem('gameName') || ''),
-        this.provider.wallet.publicKey.toBuffer(),
-      ],
+      [Buffer.from(gameName || ''), this.provider.wallet.publicKey.toBuffer()],
       this.program.programId,
     );
 
     const [gameAccount] = await findProgramAddressSync(
-      [Buffer.from(localStorage.getItem('gameName') || '')],
+      [Buffer.from(gameName || '')],
       this.program.programId,
     );
 
     const [originLocAccount] = await findProgramAddressSync(
       [
-        Buffer.from(localStorage.getItem('gameName') || ''),
+        Buffer.from(gameName || ''),
         Buffer.from(originLoc.x.toString()),
         Buffer.from(originLoc.y.toString()),
       ],
@@ -156,7 +148,7 @@ export class PlayerMovement {
 
     const [destinationLocAccount] = await findProgramAddressSync(
       [
-        Buffer.from(localStorage.getItem('gameName') || ''),
+        Buffer.from(gameName || ''),
         Buffer.from(destinationLoc.x.toString()),
         Buffer.from(destinationLoc.y.toString()),
       ],
@@ -171,13 +163,17 @@ export class PlayerMovement {
     ];
   }
 
-  async moveTroops(originLoc: Coords, destinationLoc: Coords) {
+  async moveTroops(
+    gameName: string,
+    originLoc: Coords,
+    destinationLoc: Coords,
+  ) {
     const [
       playerAccount,
       gameAccount,
       originLocAccount,
       destinationLocAccount,
-    ] = await this.prepTroopAccounts(originLoc, destinationLoc);
+    ] = await this.prepTroopAccounts(gameName, originLoc, destinationLoc);
 
     const movedTroops = this.program.rpc.moveTroops({
       accounts: {
@@ -192,13 +188,13 @@ export class PlayerMovement {
     console.log(movedTroops);
   }
 
-  async attack(originLoc: Coords, destinationLoc: Coords) {
+  async attack(gameName: string, originLoc: Coords, destinationLoc: Coords) {
     const [
       playerAccount,
       gameAccount,
       originLocAccount,
       destinationLocAccount,
-    ] = await this.prepTroopAccounts(originLoc, destinationLoc);
+    ] = await this.prepTroopAccounts(gameName, originLoc, destinationLoc);
 
     const movedTroops = this.program.rpc.attack({
       accounts: {

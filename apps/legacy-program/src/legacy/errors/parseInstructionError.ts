@@ -1,21 +1,21 @@
-import { Transaction } from "@solana/web3.js";
+import { Transaction } from '@solana/web3.js';
 
 import {
   KNOWN_GENERIC_ERRORS,
   PROGRAMS_ERRORS,
   PROGRAMS_NAMES,
-} from "./constants";
-import { TransactionError } from "./TransactionError";
+} from './constants';
+import { TransactionError } from './TransactionError';
 
 type CustomError = { Custom: number };
 type InstructionError = [number, CustomError];
 
-function extractInstructionError(error: unknown): InstructionError | null {
+function extractInstructionError(error: any): InstructionError | null {
   const instructionError = `${error}`.split('"InstructionError":').pop();
   if (instructionError) {
     const content = instructionError.substring(
       0,
-      instructionError.lastIndexOf("]") + 1
+      instructionError.lastIndexOf(']') + 1,
     );
     return JSON.parse(content);
   }
@@ -25,30 +25,30 @@ function extractInstructionError(error: unknown): InstructionError | null {
 export function parseInstructionError(
   transaction: Transaction,
   txId: string,
-  transactionError: any
+  transactionError: any,
 ): TransactionError {
-  console.log("TransactionError", transactionError);
-  if (`${transactionError}`.includes("Transaction cancelled")) {
+  console.log('TransactionError', transactionError);
+  if (`${transactionError}`.includes('Transaction cancelled')) {
     return new TransactionError(
-      "Transaction cancelled",
-      "TransactionCancelled",
+      'Transaction cancelled',
+      'TransactionCancelled',
       9999,
-      txId
+      txId,
     );
   }
 
-  if (`${transactionError}`.includes("Transaction was not confirmed")) {
+  if (`${transactionError}`.includes('Transaction was not confirmed')) {
     return new TransactionError(
-      "Transaction was not confirmed in 30.00 seconds. It is unknown if it succeeded or failed",
-      "TransactionNotConfirmed",
+      'Transaction was not confirmed in 30.00 seconds. It is unknown if it succeeded or failed',
+      'TransactionNotConfirmed',
       9998,
-      txId
+      txId,
     );
   }
 
   try {
     const instructionErrorData =
-      transactionError["InstructionError"] ||
+      transactionError['InstructionError'] ||
       extractInstructionError(transactionError);
 
     const [failedInstructionIndex, customError] = instructionErrorData;
@@ -58,8 +58,8 @@ export function parseInstructionError(
       PROGRAMS_ERRORS[failedInstruction.programId.toString()];
     const programName =
       PROGRAMS_NAMES[failedInstruction.programId.toString()] ||
-      "Unknown program";
-    const errorCodeOrName = customError["Custom"] || customError;
+      'Unknown program';
+    const errorCodeOrName = customError['Custom'] || customError;
 
     if (programErrors) {
       const errorInfo =
@@ -67,23 +67,23 @@ export function parseInstructionError(
         KNOWN_GENERIC_ERRORS.find((i) => i.code == errorCodeOrName);
       return new TransactionError(
         `${programName}: ${errorInfo?.msg || errorCodeOrName}`,
-        errorInfo?.name || "Unknown",
+        errorInfo?.name || 'Unknown',
         errorInfo?.code || errorCodeOrName,
-        txId
+        txId,
       );
     }
     return new TransactionError(
       `${programName}: ${errorCodeOrName}`,
       failedInstruction.programId.toString(),
       errorCodeOrName,
-      txId
+      txId,
     );
   } catch {
     return new TransactionError(
       `${transactionError}`,
-      "TransactionError",
+      'TransactionError',
       10000,
-      txId
+      txId,
     );
   }
 }

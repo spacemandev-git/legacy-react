@@ -24,7 +24,7 @@ const ActionsDemo = ({
   legacy: LegacyProgram;
 }) => {
   const handlePlaceSelection = (loc: Coords) => {
-    legacy.playerMovement.initLocBySpawn(loc);
+    legacy.playerMovement.initLocBySpawn(localStorage.getItem('gameName'), loc);
   };
 
   return (

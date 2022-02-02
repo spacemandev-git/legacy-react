@@ -80,7 +80,10 @@ const Login = () => {
     const legacyObj = new LegacyProgram(provider, program);
 
     legacyObj.playerMovement
-      .initializePlayer(provider.wallet.publicKey.toString())
+      .initializePlayer(
+        localStorage.getItem('gameName'),
+        provider.wallet.publicKey.toString(),
+      )
       .then((obj) => {
         console.log('!DONE', obj);
       });

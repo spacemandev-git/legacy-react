@@ -6,7 +6,7 @@ export interface LegacyConfig {
   programIdl: Idl;
 }
 
-export interface CreateInstructionFunctionResult<T extends unknown> {
+export interface CreateInstructionFunctionResult<T extends any> {
   instructions: web3.TransactionInstruction[];
   cleanupInstructions: web3.TransactionInstruction[];
   signers: web3.Keypair[];
