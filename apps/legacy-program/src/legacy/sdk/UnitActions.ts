@@ -8,6 +8,7 @@
 
 import * as anchor from '@project-serum/anchor';
 import { Program, Provider } from '@project-serum/anchor';
+import { PublicKey } from '@solana/web3.js';
 import { LegacyClient } from './client';
 const { SystemProgram } = anchor.web3;
 import { Locs, Setup, SpawnedPlayers } from './type';
@@ -15,9 +16,18 @@ import { Locs, Setup, SpawnedPlayers } from './type';
 export class UnitActions {
   gameId: string;
   setup: Setup;
-  constructor(private client: LegacyClient) {}
+  constructor(private client: LegacyClient, private playerPubkey: PublicKey) {}
+
+  static async load(
+    client: LegacyClient,
+    address: PublicKey,
+  ): Promise<UnitActions> {
+    const player = new UnitActions(client, address);
+
+    return player;
+  }
+
   async initLocBySpawn() {
-    this;
     return;
   }
 

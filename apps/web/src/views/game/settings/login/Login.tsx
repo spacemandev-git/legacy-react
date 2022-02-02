@@ -9,9 +9,14 @@ import {
 import { bs58 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { PublicKey } from '@solana/web3.js';
 import { createLocalWallet, LOCAL_SECRET } from '../../../../../../libs/chain';
-import { LegacyProgram } from '../../../../../../legacy-program/src/legacy/sdk';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 import ActionsDemo from '../actionsDemo/ActionsDemo';
+import {
+  useUnitActions,
+  useClient,
+  useCardActions,
+  usePlayerActions,
+} from '../../../../hooks/useClient';
 
 const Login = () => {
   const [pubKey, setPubKey] = useState();
@@ -22,8 +27,10 @@ const Login = () => {
   const [optionSelected, setOptionSelected] = useState('');
   const [player, setPlayer] = useState();
   const [game, setGame] = useState();
-  const [legacy, setLegacy] = useState();
-
+  const client = useClient();
+  const playerActions = usePlayerActions();
+  const unitActions = useUnitActions();
+  const cardActions = useCardActions();
   const handleCreateBurner = async () => {
     setup();
   };
@@ -65,9 +72,8 @@ const Login = () => {
       );
       player = await program.account.player.fetch(playerAccount);
       setPlayer(player);
-      const legacyObj = new LegacyProgram(provider, program);
-      setLegacy(legacyObj);
-      setGame(await legacyObj.getGameAccount());
+
+      setGame(await client.getGameAccount(localStorage.getItem('gameName')));
       console.log(player);
     } catch (_error) {
       if (!player) {
@@ -77,9 +83,7 @@ const Login = () => {
   };
 
   const handlePlayerInitialize = async () => {
-    const legacyObj = new LegacyProgram(provider, program);
-
-    legacyObj.playerMovement
+    player
       .initializePlayer(
         localStorage.getItem('gameName'),
         provider.wallet.publicKey.toString(),
@@ -142,7 +146,7 @@ const Login = () => {
           {player ? (
             <>
               <_description>You are signed in!</_description>
-              <ActionsDemo player={player} game={game} legacy={legacy} />
+              <ActionsDemo player={player} game={game} legacy={client} />
             </>
           ) : null}
           {}

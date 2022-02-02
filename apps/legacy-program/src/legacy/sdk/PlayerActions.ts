@@ -9,16 +9,21 @@ const { SystemProgram } = anchor.web3;
 //Tests that players can be created
 //Players can generate a start location (the map grows clockwise from max x,y)
 
-export class Player {
-  constructor(private client: LegacyClient) {}
+export class PlayerActions {
+  constructor(private client: LegacyClient, private playerPubKey: PublicKey) {}
 
-  async initializePlayer(
-    gameName: string,
-    playerName: string,
-    playerPublicKey: PublicKey,
-  ) {
+  static async load(
+    client: LegacyClient,
+    address: PublicKey,
+  ): Promise<PlayerActions> {
+    const player = new PlayerActions(client, address);
+
+    return player;
+  }
+
+  async initializePlayer(gameName: string, playerName: string) {
     const [playerAccount, playerBump] = await findProgramAddressSync(
-      [Buffer.from(gameName || ''), playerPublicKey.toBuffer()],
+      [Buffer.from(gameName || ''), this.playerPubKey.toBuffer()],
       this.client.program.programId,
     );
 
@@ -34,7 +39,7 @@ export class Player {
         accounts: {
           game: gameAccount,
           playerAccount: playerAccount,
-          player: playerPublicKey,
+          player: this.playerPubKey,
           systemProgram: SystemProgram.programId,
         },
       },
@@ -57,9 +62,9 @@ export class Player {
     // getPlayers subscription to look for new players
   }
 
-  async initLocBySpawn(gameName: string, playerPubKey: PublicKey, loc: Coords) {
+  async initLocBySpawn(gameName: string, loc: Coords) {
     const [playerAccount, playerBump] = await findProgramAddressSync(
-      [Buffer.from(gameName || ''), playerPubKey.toBuffer()],
+      [Buffer.from(gameName || ''), this.playerPubKey.toBuffer()],
       this.client.program.programId,
     );
 
@@ -97,14 +102,9 @@ export class Player {
   }
 
   //place card if location is init already
-  async playCard(
-    gameName: string,
-    playerPublicKey: PublicKey,
-    loc: Coords,
-    card: Card,
-  ) {
+  async playCard(gameName: string, loc: Coords, card: Card) {
     const [playerAccount] = await findProgramAddressSync(
-      [Buffer.from(gameName || ''), playerPublicKey.toBuffer()],
+      [Buffer.from(gameName || ''), this.playerPubKey.toBuffer()],
       this.client.program.programId,
     );
 
@@ -128,7 +128,7 @@ export class Player {
         accounts: {
           game: gameAccount,
           location: locAccount,
-          player: playerPublicKey,
+          player: this.playerPubKey,
           authority: playerAccount,
         },
       },
@@ -139,12 +139,11 @@ export class Player {
 
   private async prepTroopAccounts(
     gameName: string,
-    playerPublicKey: PublicKey,
     originLoc: Coords,
     destinationLoc: Coords,
   ) {
     const [playerAccount] = await findProgramAddressSync(
-      [Buffer.from(gameName || ''), playerPublicKey.toBuffer()],
+      [Buffer.from(gameName || ''), this.playerPubKey.toBuffer()],
       this.client.program.programId,
     );
 
@@ -181,7 +180,6 @@ export class Player {
 
   async moveTroops(
     gameName: string,
-    playerPublicKey: PublicKey,
     originLoc: Coords,
     destinationLoc: Coords,
   ) {
@@ -190,19 +188,14 @@ export class Player {
       gameAccount,
       originLocAccount,
       destinationLocAccount,
-    ] = await this.prepTroopAccounts(
-      gameName,
-      playerPublicKey,
-      originLoc,
-      destinationLoc,
-    );
+    ] = await this.prepTroopAccounts(gameName, originLoc, destinationLoc);
 
     const movedTroops = this.client.program.rpc.moveTroops({
       accounts: {
         game: gameAccount,
         from: originLocAccount,
         destination: destinationLocAccount,
-        player: playerPublicKey,
+        player: this.playerPubKey,
         authority: playerAccount,
       },
     });
@@ -210,30 +203,20 @@ export class Player {
     console.log(movedTroops);
   }
 
-  async attack(
-    gameName: string,
-    playerPublicKey: PublicKey,
-    originLoc: Coords,
-    destinationLoc: Coords,
-  ) {
+  async attack(gameName: string, originLoc: Coords, destinationLoc: Coords) {
     const [
       playerAccount,
       gameAccount,
       originLocAccount,
       destinationLocAccount,
-    ] = await this.prepTroopAccounts(
-      gameName,
-      playerPublicKey,
-      originLoc,
-      destinationLoc,
-    );
+    ] = await this.prepTroopAccounts(gameName, originLoc, destinationLoc);
 
     const movedTroops = this.client.program.rpc.attack({
       accounts: {
         game: gameAccount,
         from: originLocAccount,
         destination: destinationLocAccount,
-        player: playerPublicKey,
+        player: this.playerPubKey,
         authority: playerAccount,
       },
     });

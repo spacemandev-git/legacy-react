@@ -6,14 +6,20 @@ import { Card, Coords } from '.';
 import { LegacyClient } from './client';
 
 export class CardActions {
-  constructor(private client: LegacyClient) {}
-  async scanForCards(
-    gameName: string,
-    playerPublicKey: PublicKey,
-    loc: Coords,
-  ) {
+  constructor(private client: LegacyClient, private playerPubkey: PublicKey) {}
+
+  static async load(
+    client: LegacyClient,
+    address: PublicKey,
+  ): Promise<CardActions> {
+    const cardActions = new CardActions(client, address);
+
+    return cardActions;
+  }
+
+  async scanForCards(gameName: string, loc: Coords) {
     const [playerAccount] = await findProgramAddressSync(
-      [Buffer.from(gameName || ''), playerPublicKey.toBuffer()],
+      [Buffer.from(gameName || ''), this.playerPubkey.toBuffer()],
       this.client.program.programId,
     );
 
@@ -35,16 +41,16 @@ export class CardActions {
       accounts: {
         game: gameAccount,
         location: locAccount,
-        player: playerPublicKey,
+        player: this.playerPubkey,
         authority: playerAccount,
       },
     });
 
     console.log(scannedLocation);
   }
-  async redeemCard(gameName: string, playerPublicKey: PublicKey, card: Card) {
+  async redeemCard(gameName: string, card: Card) {
     const [playerAccount] = await findProgramAddressSync(
-      [Buffer.from(gameName || ''), playerPublicKey.toBuffer()],
+      [Buffer.from(gameName || ''), this.playerPubkey.toBuffer()],
       this.client.program.programId,
     );
 
@@ -56,7 +62,7 @@ export class CardActions {
 
     const redeemedCard = this.client.program.rpc.redeem({
       accounts: {
-        player: playerPublicKey,
+        player: this.playerPubkey,
         authority: playerAccount,
         card: cardAccount,
       },

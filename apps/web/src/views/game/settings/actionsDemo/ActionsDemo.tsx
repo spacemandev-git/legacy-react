@@ -5,7 +5,6 @@ import {
   LegacyProgram,
   Player,
 } from '../../../../../../legacy-program/src/legacy/sdk';
-import { PlayerMovement } from '../../../../../../legacy-program/src/legacy/sdk/Player';
 import {
   _create,
   _description,
@@ -13,6 +12,7 @@ import {
   _login,
   _pubKey,
 } from '../Login/Login.styled';
+import { usePlayerActions } from '../../../../hooks/useClient';
 
 const ActionsDemo = ({
   player,
@@ -23,8 +23,10 @@ const ActionsDemo = ({
   game: any;
   legacy: LegacyProgram;
 }) => {
+  const playActions = usePlayerActions();
+
   const handlePlaceSelection = (loc: Coords) => {
-    legacy.playerMovement.initLocBySpawn(localStorage.getItem('gameName'), loc);
+    playActions.initLocBySpawn(localStorage.getItem('gameName'), loc);
   };
 
   return (
