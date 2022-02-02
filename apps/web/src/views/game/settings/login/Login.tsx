@@ -21,6 +21,8 @@ const Login = () => {
   const [playerMissing, setPlayerMissing] = useState(false);
   const [optionSelected, setOptionSelected] = useState('');
   const [player, setPlayer] = useState();
+  const [game, setGame] = useState();
+  const [legacy, setLegacy] = useState();
 
   const handleCreateBurner = async () => {
     setup();
@@ -63,6 +65,9 @@ const Login = () => {
       );
       player = await program.account.player.fetch(playerAccount);
       setPlayer(player);
+      const legacyObj = new LegacyProgram(provider, program);
+      setLegacy(legacyObj);
+      setGame(await legacyObj.getGameAccount());
       console.log(player);
     } catch (_error) {
       if (!player) {
@@ -84,6 +89,10 @@ const Login = () => {
   const handleSelection = (selection) => {
     setOptionSelected(selection);
   };
+
+  useEffect(() => {
+    console.log(game);
+  }, [game]);
 
   return (
     <_login>
@@ -130,7 +139,7 @@ const Login = () => {
           {player ? (
             <>
               <_description>You are signed in!</_description>
-              <ActionsDemo player={player} />
+              <ActionsDemo player={player} game={game} legacy={legacy} />
             </>
           ) : null}
           {}

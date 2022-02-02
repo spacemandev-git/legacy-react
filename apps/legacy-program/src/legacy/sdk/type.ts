@@ -1,4 +1,5 @@
 import * as anchor from '@project-serum/anchor';
+import { PublicKey } from '@solana/web3.js';
 
 export type Feature = {
   name: string;
@@ -72,4 +73,59 @@ export interface LocationPlayers {
     y: number;
     acc: string;
   };
+}
+
+export interface Player {
+  name: string;
+  authority: PublicKey;
+  cards: Card[];
+  redeemableCards: RedeemableCard[];
+}
+
+export interface Card {
+  dropTable: DropTable;
+  id: number;
+  cardType: CardType;
+}
+
+export interface RedeemableCard {
+  dropTable: DropTable;
+  id: number;
+}
+
+export enum DropTable {
+  None,
+  Basic,
+  Rare,
+  Legendary,
+}
+
+export enum CardType {
+  None,
+  Unit,
+  UnitMod,
+}
+
+export interface Game {
+  id: String;
+  authority: PublicKey;
+  enabled: boolean;
+  features: Feature[];
+  locations: Coords[];
+  starting_card: Card;
+  //Not defining since its not used for FE
+  // decks: DeckLen;
+}
+
+export interface Coords {
+  x: number;
+  y: number;
+}
+
+export interface Location {
+  game_acc: PublicKey;
+  coords: Coords;
+  feature?: Feature;
+  troops?: Troop;
+  tile_owner?: PublicKey;
 }

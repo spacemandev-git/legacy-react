@@ -1,19 +1,14 @@
 import * as anchor from '@project-serum/anchor';
 import { Program, Provider } from '@project-serum/anchor';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
+import { Setup, PDA, Coords, Card } from './type';
 const { SystemProgram } = anchor.web3;
 
 //Tests that players can be created
 //Players can generate a start location (the map grows clockwise from max x,y)
 
-import { Setup, PDA } from './type';
-
-export class Player {
-  constructor(
-    private provider: Provider,
-    private program: Program,
-    gameAccount?: string,
-  ) {}
+export class PlayerMovement {
+  constructor(private provider: Provider, private program: Program) {}
 
   async initializePlayer(playerName: string) {
     const [playerAccount, playerBump] = await findProgramAddressSync(
@@ -57,5 +52,164 @@ export class Player {
     // score: 10001
     // twitter: "chubivan"
     // getPlayers subscription to look for new players
+  }
+
+  async initLocBySpawn(loc: Coords) {
+    const [playerAccount, playerBump] = await findProgramAddressSync(
+      [
+        Buffer.from(localStorage.getItem('gameName') || ''),
+        this.provider.wallet.publicKey.toBuffer(),
+      ],
+      this.program.programId,
+    );
+
+    const [gameAccount] = await findProgramAddressSync(
+      [Buffer.from(localStorage.getItem('gameName') || '')],
+      this.program.programId,
+    );
+
+    const [locAccount] = await findProgramAddressSync(
+      [
+        Buffer.from(localStorage.getItem('gameName') || ''),
+        Buffer.from(loc.x.toString()),
+        Buffer.from(loc.y.toString()),
+      ],
+      this.program.programId,
+    );
+
+    const initializedLocation = this.program.rpc.initLocation(
+      loc.x,
+      loc.y,
+      playerBump,
+      {
+        accounts: {
+          game: gameAccount,
+          location: locAccount,
+          //TODO: Figure out a way to get this
+          connectingLoc: locAccount,
+          authority: playerAccount,
+          systemProgram: SystemProgram.programId,
+        },
+      },
+    );
+
+    console.log(initializedLocation);
+  }
+
+  //place card if location is init already
+  async playCard(loc: Coords, card: Card) {
+    const [playerAccount] = await findProgramAddressSync(
+      [
+        Buffer.from(localStorage.getItem('gameName') || ''),
+        this.provider.wallet.publicKey.toBuffer(),
+      ],
+      this.program.programId,
+    );
+
+    const [gameAccount] = await findProgramAddressSync(
+      [Buffer.from(localStorage.getItem('gameName') || '')],
+      this.program.programId,
+    );
+
+    const [locAccount] = await findProgramAddressSync(
+      [
+        Buffer.from(localStorage.getItem('gameName') || ''),
+        Buffer.from(loc.x.toString()),
+        Buffer.from(loc.y.toString()),
+      ],
+      this.program.programId,
+    );
+    const playedCard = this.program.rpc.playCard(card.id, card.cardType, {
+      accounts: {
+        game: gameAccount,
+        location: locAccount,
+        player: this.provider.wallet.publicKey,
+        authority: playerAccount,
+      },
+    });
+
+    console.log(playedCard);
+  }
+
+  private async prepTroopAccounts(originLoc: Coords, destinationLoc: Coords) {
+    const [playerAccount] = await findProgramAddressSync(
+      [
+        Buffer.from(localStorage.getItem('gameName') || ''),
+        this.provider.wallet.publicKey.toBuffer(),
+      ],
+      this.program.programId,
+    );
+
+    const [gameAccount] = await findProgramAddressSync(
+      [Buffer.from(localStorage.getItem('gameName') || '')],
+      this.program.programId,
+    );
+
+    const [originLocAccount] = await findProgramAddressSync(
+      [
+        Buffer.from(localStorage.getItem('gameName') || ''),
+        Buffer.from(originLoc.x.toString()),
+        Buffer.from(originLoc.y.toString()),
+      ],
+      this.program.programId,
+    );
+
+    const [destinationLocAccount] = await findProgramAddressSync(
+      [
+        Buffer.from(localStorage.getItem('gameName') || ''),
+        Buffer.from(destinationLoc.x.toString()),
+        Buffer.from(destinationLoc.y.toString()),
+      ],
+      this.program.programId,
+    );
+
+    return [
+      playerAccount,
+      gameAccount,
+      originLocAccount,
+      destinationLocAccount,
+    ];
+  }
+
+  async moveTroops(originLoc: Coords, destinationLoc: Coords) {
+    const [
+      playerAccount,
+      gameAccount,
+      originLocAccount,
+      destinationLocAccount,
+    ] = await this.prepTroopAccounts(originLoc, destinationLoc);
+
+    const movedTroops = this.program.rpc.moveTroops({
+      accounts: {
+        game: gameAccount,
+        from: originLocAccount,
+        destination: destinationLocAccount,
+        player: this.provider.wallet.publicKey,
+        authority: playerAccount,
+      },
+    });
+
+    console.log(movedTroops);
+  }
+
+  async attack(originLoc: Coords, destinationLoc: Coords) {
+    const [
+      playerAccount,
+      gameAccount,
+      originLocAccount,
+      destinationLocAccount,
+    ] = await this.prepTroopAccounts(originLoc, destinationLoc);
+
+    const movedTroops = this.program.rpc.attack({
+      accounts: {
+        game: gameAccount,
+        from: originLocAccount,
+        destination: destinationLocAccount,
+        player: this.provider.wallet.publicKey,
+        authority: playerAccount,
+      },
+    });
+
+    console.log(movedTroops);
   }
 }
