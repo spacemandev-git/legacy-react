@@ -3,12 +3,12 @@ import { Program } from '@project-serum/anchor';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 import { Feature, LegacyConfig } from './type';
 import * as anchor from '@project-serum/anchor';
-import { LEGACY_PROGRAM_ID } from '.';
+import { LegacyConfigFile, LEGACY_PROGRAM_ID } from '.';
 import { PublicKey } from '@solana/web3.js';
 
 export class LegacyClient {
   constructor(public program: anchor.Program, public devnet?: boolean) {
-    this.legacyGameConfig = this.legacyProgram;
+    this.legacyGameConfig = LegacyConfigFile;
   }
 
   /**
@@ -72,9 +72,9 @@ export class LegacyClient {
       power: new anchor.BN(unit.power),
       range: new anchor.BN(unit.range),
       recovery: new anchor.BN(unit.recovery),
-      modInf: new anchor.BN(unit.modInf),
-      modArmor: new anchor.BN(unit.modArmor),
-      modAir: new anchor.BN(unit.modAir),
+      modInf: new anchor.BN(unit.mod_inf),
+      modArmor: new anchor.BN(unit.mod_armor),
+      modAir: new anchor.BN(unit.mod_air),
     };
     const starting_card = {
       dropTable: { basic: {} },
@@ -116,9 +116,9 @@ export class LegacyClient {
         power: new anchor.BN(unit.power),
         range: new anchor.BN(unit.range),
         recovery: new anchor.BN(unit.recovery),
-        modInf: new anchor.BN(unit.modInf),
-        modArmor: new anchor.BN(unit.modArmor),
-        modAir: new anchor.BN(unit.modAir),
+        modInf: new anchor.BN(unit.mod_inf),
+        modArmor: new anchor.BN(unit.mod_armor),
+        modAir: new anchor.BN(unit.mod_air),
       };
 
       const card = {
@@ -174,9 +174,9 @@ export class LegacyClient {
 
     for (let f of this.legacyProgram.featureConfig) {
       features.push({
-        weight: new anchor.BN(f.weight),
+        weight: f.weight,
         name: f.name,
-        scan_recovery: new anchor.BN(f.weight),
+        scan_recovery: f.weight,
         drop_table: 'legendary',
         link: '',
       });
@@ -226,9 +226,9 @@ export class LegacyClient {
         power: new anchor.BN(mod.power),
         range: new anchor.BN(mod.range),
         recovery: new anchor.BN(mod.recovery),
-        modInf: new anchor.BN(mod.modInf),
-        modArmor: new anchor.BN(mod.modArmor),
-        modAir: new anchor.BN(mod.modAir),
+        modInf: new anchor.BN(mod.mod_inf),
+        modArmor: new anchor.BN(mod.mod_armor),
+        modAir: new anchor.BN(mod.mod_air),
       };
       const card = {
         dropTable: { [mod.drop_table]: {} },

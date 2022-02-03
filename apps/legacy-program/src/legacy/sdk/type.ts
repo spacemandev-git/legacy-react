@@ -20,15 +20,15 @@ export type Troop = {
   class: any; //4
   range: anchor.BN;
   power: anchor.BN; //8
-  modInf: anchor.BN; //8
-  modArmor: anchor.BN; //8
-  modAir: anchor.BN; //8,
+  mod_inf: anchor.BN; //8
+  mod_armor: anchor.BN; //8
+  mod_air: anchor.BN; //8,
 };
 
 export interface Feature {
   name: string;
-  scan_recovery: anchor.BN;
-  weight: anchor.BN;
+  scan_recovery: number;
+  weight: number;
   link: string;
   drop_table: 'basic' | 'rare' | 'legendary';
 }
@@ -40,10 +40,10 @@ export interface TroopAndMod {
   class: 'Infantry' | 'Armor' | 'Aircraft';
   power: number;
   range: number;
+  mod_inf: number;
+  mod_armor: number;
+  mod_air: number;
   recovery: number;
-  modInf: number;
-  modArmor: number;
-  modAir: number;
 }
 
 export interface LegacyConfig {
