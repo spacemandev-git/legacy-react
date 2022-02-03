@@ -7,8 +7,7 @@ import {
   _pubKey,
 } from './Login.styled';
 import { bs58 } from '@project-serum/anchor/dist/cjs/utils/bytes';
-import { PublicKey } from '@solana/web3.js';
-import { createLocalWallet, LOCAL_SECRET } from '../../../../../../libs/chain';
+import { LOCAL_SECRET } from '../../../../../../libs/chain';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 import ActionsDemo from '../actionsDemo/ActionsDemo';
 import {
@@ -17,64 +16,72 @@ import {
   useCardActions,
   usePlayerActions,
 } from '../../../../hooks/useClient';
+import { web3 } from '@project-serum/anchor';
+import NodeWallet, { Wallet } from '../../../../../../libs/chain/NodeWallet';
 
 const Login = () => {
-  const [pubKey, setPubKey] = useState();
   const [value, setValue] = useState('');
-  const [provider, setProvider] = useState();
-  const [program, setProgram] = useState();
   const [playerMissing, setPlayerMissing] = useState(false);
   const [optionSelected, setOptionSelected] = useState('');
   const [player, setPlayer] = useState();
   const [game, setGame] = useState();
-  const client = useClient();
-  const playerActions = usePlayerActions();
-  const unitActions = useUnitActions();
-  const cardActions = useCardActions();
+  const [wallet, setWallet] = useState<Wallet>();
+  const client = useClient(wallet);
+  const playerActions = usePlayerActions(wallet);
+  const unitActions = useUnitActions(wallet);
+  const cardActions = useCardActions(wallet);
+
   const handleCreateBurner = async () => {
-    setup();
-  };
+    let secret;
+    let wallet;
+    let local_secret = localStorage.getItem(LOCAL_SECRET);
 
-  useEffect(() => {
-    const pubKey = localStorage.getItem(LOCAL_SECRET);
-    if (pubKey) setPubKey(pubKey);
-  }, []);
-
-  const setup = async () => {
-    const { wallet, provider, program } = await createLocalWallet();
-    setProgram(program);
-    setProvider(provider);
-    setPubKey(new PublicKey(wallet.publicKey).toBase58());
+    if (local_secret) {
+      wallet = web3.Keypair.fromSecretKey(bs58.decode(local_secret));
+    } else {
+      wallet = web3.Keypair.generate();
+      localStorage.setItem(
+        LOCAL_SECRET,
+        bs58.encode(wallet?._keypair?.secretKey),
+      );
+    }
+    setWallet(new NodeWallet(wallet));
   };
 
   const handleImportKey = (e) => {
     if (e.key === 'Enter') {
       localStorage.setItem(LOCAL_SECRET, bs58.encode(value));
-      setup();
     }
   };
 
   useEffect(() => {
-    if (pubKey) {
+    if (wallet) {
       checkPlayerExists();
     }
-  }, [pubKey]);
+  }, [wallet]);
 
   const checkPlayerExists = async () => {
     let player;
     try {
-      const [playerAccount] = await findProgramAddressSync(
-        [
-          Buffer.from(localStorage.getItem('gameName')),
-          provider.wallet.publicKey.toBuffer(),
-        ],
-        program.programId,
-      );
-      player = await program.account.player.fetch(playerAccount);
-      setPlayer(player);
+      if (client) {
+        const [playerAccount] = await findProgramAddressSync(
+          [
+            Buffer.from(localStorage.getItem('gameName')),
+            client.program.provider.wallet.publicKey.toBuffer(),
+          ],
+          client.program.programId,
+        );
 
-      setGame(await client.getGameAccount(localStorage.getItem('gameName')));
-      console.log(player);
+        const [gamePubKey] = await findProgramAddressSync(
+          [Buffer.from(localStorage.getItem('gameName'))],
+          client.program.programId,
+        );
+        const gameAccount = await client.program.account.game.fetch(gamePubKey);
+        player = await client.program.account.player.fetch(playerAccount);
+        setPlayer(player);
+
+        setGame(await client.getGameAccount(localStorage.getItem('gameName')));
+      }
     } catch (_error) {
       if (!player) {
         setPlayerMissing(true);
@@ -83,10 +90,10 @@ const Login = () => {
   };
 
   const handlePlayerInitialize = async () => {
-    player
+    playerActions
       .initializePlayer(
         localStorage.getItem('gameName'),
-        provider.wallet.publicKey.toString(),
+        client.program.provider.wallet.publicKey.toString(),
       )
       .then((obj) => {
         console.log('!DONE', obj);
@@ -112,7 +119,7 @@ const Login = () => {
               handleSelection('signin');
             }}
           >
-            {pubKey ? 'Sign in to existing account' : 'Create burner account'}
+            {wallet ? 'Sign in to existing account' : 'Create burner account'}
           </_create>
           <_create disabled>Import private key</_create>
         </>
@@ -128,15 +135,14 @@ const Login = () => {
           onKeyDown={handleImportKey}
         />
       ) : null}
-      {optionSelected === 'signin' ? (
+      {optionSelected === 'signin' || wallet ? (
         <>
-          {pubKey && playerMissing && !player ? (
+          {wallet && playerMissing && !player ? (
             <>
               <_description>
                 It looks like you havent made an account for this game session
                 <br />
-                {/* TODO: remove */}
-                (pubKey: {pubKey})
+                (pubKey: {wallet.publicKey.toBase58()})
               </_description>
               <_create onClick={handlePlayerInitialize}>
                 Initialize account
@@ -146,7 +152,12 @@ const Login = () => {
           {player ? (
             <>
               <_description>You are signed in!</_description>
-              <ActionsDemo player={player} game={game} legacy={client} />
+              <ActionsDemo
+                player={player}
+                game={game}
+                playerActions={playerActions}
+                client={client}
+              />
             </>
           ) : null}
           {}

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { css } from 'styled-components';
 
 export const _login = styled.div`
   border: 1px solid ${({ theme }) => theme.settings['border']};
@@ -12,6 +13,13 @@ export const _login = styled.div`
 export const _create = styled.button`
   margin-right: 16px;
   padding: 4px 8px;
+
+  ${({ $active }) => {
+    if ($active)
+      return css`
+        background-color: gold;
+      `;
+  }}
 `;
 
 export const _import = styled.input`

@@ -1,20 +1,24 @@
-import { useMemo, useState } from 'react';
-import { Connection, ConfirmOptions, PublicKey } from '@solana/web3.js';
+import { useMemo, useState, useEffect } from 'react';
+import { ConfirmOptions, Connection, PublicKey } from '@solana/web3.js';
 import { Provider, Program } from '@project-serum/anchor';
-import { useWallet } from '@solana/wallet-adapter-react';
 import { useRpcNode } from '../contexts/rpcNode';
 import mainnetBetaIdl from '../../../libs/chain/legacy_sol.json';
+import { bs58 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+import { web3 } from '@project-serum/anchor';
 import {
   PlayerActions,
   CardActions,
   UnitActions,
   LegacyClient,
 } from '@legacy/client';
+import { LOCAL_SECRET } from '../../../libs/chain';
+import NodeWallet, { Wallet } from '../../../libs/chain/NodeWallet';
 
 export let idl: any;
-const cluster = process.env.REACT_APP_CLUSTER;
+const cluster = process.env.REACT_APP_CLUSTER || 'localnet';
 if (cluster === 'localnet') {
   // idl = localnetIdl;
+  idl = mainnetBetaIdl;
 } else if (cluster === 'devnet') {
   // idl = devnetIdl;
   idl.metadata.cluster = 'https://api.devnet.solana.com/';
@@ -32,73 +36,78 @@ export const useConfirmOptions = () => {
   return confirmOptions;
 };
 
-export const useProvider = () => {
+const useProvider = (wallet: Wallet) => {
   const { preferredNode } = useRpcNode();
   const connection = useMemo(
-    () => new Connection(preferredNode ?? idl.metadata.cluster, 'recent'),
+    () => new Connection('http://127.0.0.1:8899', 'recent'),
     [preferredNode],
   );
-  const wallet = useWallet();
   const confirmOptions = useConfirmOptions();
 
-  return useMemo(
-    () => new Provider(connection, wallet as any, confirmOptions),
-    [connection, wallet, confirmOptions],
-  );
-};
-
-export const useProgram = () => {
-  const provider = useProvider();
-  return useMemo(
-    () => new Program(idl as any, (idl as any).metadata.address, provider),
-    [provider],
-  );
-};
-
-export const useClient = (): LegacyClient => {
-  const program = useProgram();
-  //TODO: Got type errors on "program" so I cast it as any for now
-  return useMemo(() => new LegacyClient(program as any), [program]);
-};
-
-export const usePlayerActions = (walletAddress?: PublicKey): PlayerActions => {
-  const client = useClient();
-  const wallet = useWallet();
-
   return useMemo(() => {
-    if (walletAddress) {
-      return PlayerActions.load(client, walletAddress);
-    } else if (wallet.publicKey) {
-      return PlayerActions.load(client, wallet.publicKey);
+    if (wallet) {
+      return new Provider(connection, wallet, confirmOptions as ConfirmOptions);
     }
     return null;
-  }, [client, wallet, walletAddress]);
+  }, [connection, wallet, confirmOptions]);
 };
 
-export const useCardActions = (walletAddress?: PublicKey): CardActions => {
-  const client = useClient();
-  const wallet = useWallet();
+const useProgram = (wallet?: Wallet) => {
+  const provider = useProvider(wallet);
+  return useMemo(() => {
+    if (provider) {
+      return new Program(idl as any, (idl as any).metadata.address, provider);
+    }
+    return null;
+  }, [provider]);
+};
+
+export const useClient = (wallet?: Wallet): LegacyClient => {
+  const program = useProgram(wallet);
+  //TODO: Got type errors on "program" so I cast it as any for now
+  return useMemo(() => {
+    if (program) {
+      return new LegacyClient(program as any);
+    }
+    return null;
+  }, [program]);
+};
+
+export const usePlayerActions = (wallet?: Wallet): PlayerActions => {
+  const client = useClient(wallet);
+  const [playerActions, setPlayerActions] = useState<PlayerActions>(null);
+
+  const handleAction = async () => {
+    setPlayerActions(await PlayerActions.load(client, wallet.publicKey));
+  };
+
+  useEffect(() => {
+    if (wallet) {
+      handleAction();
+    }
+  }, [wallet]);
+
+  return playerActions;
+};
+
+export const useCardActions = (wallet?: Wallet): CardActions => {
+  const client = useClient(wallet);
 
   return useMemo(() => {
-    if (walletAddress) {
-      return CardActions.load(client, walletAddress);
-    } else if (wallet.publicKey) {
+    if (wallet) {
       return CardActions.load(client, wallet.publicKey);
     }
     return null;
-  }, [client, wallet, walletAddress]);
+  }, [client, wallet]);
 };
 
-export const useUnitActions = (walletAddress?: PublicKey): UnitActions => {
-  const client = useClient();
-  const wallet = useWallet();
+export const useUnitActions = (wallet?: Wallet): UnitActions => {
+  const client = useClient(wallet);
 
   return useMemo(() => {
-    if (walletAddress) {
-      return UnitActions.load(client, walletAddress);
-    } else if (wallet.publicKey) {
+    if (wallet) {
       return UnitActions.load(client, wallet.publicKey);
     }
     return null;
-  }, [client, wallet, walletAddress]);
+  }, [client, wallet]);
 };

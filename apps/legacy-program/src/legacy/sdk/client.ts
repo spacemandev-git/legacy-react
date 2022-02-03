@@ -1,5 +1,3 @@
-import { Provider, web3 } from '@project-serum/anchor';
-import { Program } from '@project-serum/anchor';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 import { Feature, LegacyConfig } from './type';
 import * as anchor from '@project-serum/anchor';
@@ -7,6 +5,8 @@ import { LegacyConfigFile, LEGACY_PROGRAM_ID } from '.';
 import { PublicKey } from '@solana/web3.js';
 
 export class LegacyClient {
+  legacyGameConfig: LegacyConfig;
+
   constructor(public program: anchor.Program, public devnet?: boolean) {
     this.legacyGameConfig = LegacyConfigFile;
   }
@@ -21,12 +21,10 @@ export class LegacyClient {
     devnet?: boolean,
   ): Promise<LegacyClient> {
     const idl = await anchor.Program.fetchIdl(LEGACY_PROGRAM_ID, provider);
-    const program = new anchor.Program(idl, LEGACY_PROGRAM_ID, provider);
+    const program = new anchor.Program(idl!, LEGACY_PROGRAM_ID, provider);
 
     return new LegacyClient(program, devnet);
   }
-
-  legacyGameConfig: LegacyConfig;
 
   /**
    * LegacyProgram config
@@ -35,6 +33,7 @@ export class LegacyClient {
    * @memberof LegacyProgram
    */
   get legacyProgram() {
+    console.log(this.legacyGameConfig);
     return {
       programID: this.program.programId.toBase58(),
       unitConfig: this.legacyGameConfig.unitConfig,

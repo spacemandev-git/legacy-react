@@ -2,10 +2,7 @@
 import { LEGACY_PROGRAM_ID } from '../sdk/constants';
 import assert from 'assert';
 import BN from 'bn.js';
-import * as BufferLayout from 'buffer-layout';
 import { Feature } from '../sdk';
-import { CreateInstructionFunction } from './type';
-import { SystemProgram } from '@solana/web3.js';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 import { web3 } from '@project-serum/anchor';
 import { TroopAndMod } from '../sdk/type';
@@ -70,7 +67,7 @@ export async function createGameInstruction(
     this.program.programId,
   );
 
-  const unit = this.legacyProgram.unitConfig.find((x) => x.name == 'Scout')!;
+  const unit = this.legacyProgram?.unitConfig.find((x) => x.name == 'Scout')!;
 
   const rust_starting_unit = {
     name: unit.name,

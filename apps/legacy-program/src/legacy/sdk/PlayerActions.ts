@@ -47,8 +47,6 @@ export class PlayerActions {
     return initializePlayer;
   }
 
-  async createPlayer() {}
-
   async getPlayers() {
     // get all players in the game
     // DF object info
@@ -76,11 +74,12 @@ export class PlayerActions {
     const [locAccount] = await findProgramAddressSync(
       [
         Buffer.from(gameName || ''),
-        Buffer.from(loc.x.toString()),
-        Buffer.from(loc.y.toString()),
+        new anchor.BN(loc.x).toArrayLike(Buffer, 'be', 1),
+        new anchor.BN(loc.y).toArrayLike(Buffer, 'be', 1),
       ],
       this.client.program.programId,
     );
+    const connectingLoc = await this.getConnectionLocAccount(loc, gameName);
 
     const initializedLocation = this.client.program.rpc.initLocation(
       loc.x,
@@ -91,14 +90,107 @@ export class PlayerActions {
           game: gameAccount,
           location: locAccount,
           //TODO: Figure out a way to get this
-          connectingLoc: locAccount,
+          connectingLoc: connectingLoc,
           authority: playerAccount,
           systemProgram: SystemProgram.programId,
         },
       },
     );
-
     console.log(initializedLocation);
+  }
+
+  async getLocationAccounts(gameName: string, locations: Coords[]) {
+    let locationAccounts: PublicKey[] = [];
+    for (const loc of locations) {
+      try {
+        const [locPubKey] = await findProgramAddressSync(
+          [
+            Buffer.from(gameName || ''),
+            new anchor.BN(loc.x).toArrayLike(Buffer, 'be', 1),
+            new anchor.BN(loc.y).toArrayLike(Buffer, 'be', 1),
+          ],
+          this.client.program.programId,
+        );
+        locationAccounts.push(locPubKey);
+      } catch (_e) {
+        continue;
+      }
+    }
+
+    return await this.client.program.account.location.fetchMultiple(
+      locationAccounts,
+    );
+  }
+
+  //TODO: Fix broken logic
+  static getSurroundingTiles(locations: Coords[], activeLoc: Coords) {
+    let unitializedTiles: Coords[] = [];
+
+    //Used to calc surrounding coords
+    const neighbours = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
+
+    neighbours.forEach(([dx, dy]) => {
+      if (activeLoc.x + dx < 0 || activeLoc.y + dy < 0) return;
+      if (
+        locations.find((loc) => loc.x === activeLoc.x && loc.y === activeLoc.y)
+      )
+        return unitializedTiles.push({
+          x: activeLoc.x + dx,
+          y: activeLoc.y + dy,
+        } as Coords);
+    });
+
+    return unitializedTiles;
+  }
+
+  private async getConnectionLocAccount(loc: Coords, gameName: string) {
+    let connectionLocAccount: PublicKey = new PublicKey('');
+
+    //Used to calc surrounding coords
+    const neighbours = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
+
+    neighbours.some(async ([dx, dy]) => {
+      const [locPubKey] = await findProgramAddressSync(
+        [
+          Buffer.from(gameName || ''),
+          new anchor.BN(loc.x + dx).toArrayLike(Buffer, 'be', 1),
+          new anchor.BN(loc.y + dy).toArrayLike(Buffer, 'be', 1),
+        ],
+        this.client.program.programId,
+      );
+      try {
+        const location = await this.client.program.account.location.fetch(
+          locPubKey,
+        );
+        if (location) {
+          connectionLocAccount = locPubKey;
+          return true;
+        }
+      } catch (_e) {
+        return false;
+      }
+      return false;
+    });
+
+    return connectionLocAccount;
   }
 
   //place card if location is init already
@@ -116,23 +208,20 @@ export class PlayerActions {
     const [locAccount] = await findProgramAddressSync(
       [
         Buffer.from(gameName || ''),
-        Buffer.from(loc.x.toString()),
-        Buffer.from(loc.y.toString()),
+        new anchor.BN(loc.x).toArrayLike(Buffer, 'be', 1),
+        new anchor.BN(loc.y).toArrayLike(Buffer, 'be', 1),
       ],
       this.client.program.programId,
     );
-    const playedCard = this.client.program.rpc.playCard(
-      card.id,
-      card.cardType,
-      {
-        accounts: {
-          game: gameAccount,
-          location: locAccount,
-          player: this.playerPubKey,
-          authority: playerAccount,
-        },
+
+    const playedCard = this.client.program.rpc.playCard(card.id, {
+      accounts: {
+        game: gameAccount,
+        location: locAccount,
+        player: playerAccount,
+        authority: this.playerPubKey,
       },
-    );
+    });
 
     console.log(playedCard);
   }
@@ -155,8 +244,8 @@ export class PlayerActions {
     const [originLocAccount] = await findProgramAddressSync(
       [
         Buffer.from(gameName || ''),
-        Buffer.from(originLoc.x.toString()),
-        Buffer.from(originLoc.y.toString()),
+        new anchor.BN(originLoc.x).toArrayLike(Buffer, 'be', 1),
+        new anchor.BN(originLoc.y).toArrayLike(Buffer, 'be', 1),
       ],
       this.client.program.programId,
     );
@@ -164,8 +253,8 @@ export class PlayerActions {
     const [destinationLocAccount] = await findProgramAddressSync(
       [
         Buffer.from(gameName || ''),
-        Buffer.from(destinationLoc.x.toString()),
-        Buffer.from(destinationLoc.y.toString()),
+        new anchor.BN(destinationLoc.x).toArrayLike(Buffer, 'be', 1),
+        new anchor.BN(destinationLoc.y).toArrayLike(Buffer, 'be', 1),
       ],
       this.client.program.programId,
     );
