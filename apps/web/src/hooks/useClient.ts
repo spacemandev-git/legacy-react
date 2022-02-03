@@ -90,6 +90,45 @@ export const usePlayerActions = (wallet?: Wallet): PlayerActions => {
   return playerActions;
 };
 
+export const useLegacyEvents = async (wallet?: Wallet) => {
+  const program = useClient(wallet);
+  const events = [
+    'NewLocationInitalized',
+    'TroopsMoved',
+    'TroopsDeath',
+    'Combat',
+    'CardRedeemed',
+    'UnitModded',
+    'UnitSpawned',
+  ];
+  const [subIds, setSubIds] = useState([]);
+  const setupEventListeners = async () => {
+    let sub_ids = [];
+    events.forEach((event) => {
+      sub_ids.push(
+        program.program.addEventListener(event, () => {
+          console.log(event, ' called');
+        }),
+      );
+    });
+    setSubIds(() => sub_ids);
+  };
+  const removeEventListeners = async () => {
+    subIds.forEach((sub_id) => {
+      program.program.removeEventListener(sub_id);
+    });
+  };
+
+  useMemo(async () => {
+    if (program) {
+      await removeEventListeners();
+      await setupEventListeners();
+    }
+  }, [program]);
+
+  return [setupEventListeners, removeEventListeners];
+};
+
 export const useCardActions = (wallet?: Wallet): CardActions => {
   const client = useClient(wallet);
 
