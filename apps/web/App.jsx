@@ -18,7 +18,6 @@ const withThemes = ({ palette = 'dark' }) => ({
 });
 
 const App = () => {
-  const { vh } = useMobileHeight();
   const [language, setLanguage] = useRemixOrigin(USER_LANGUAGE, 'en');
   const [theme] = useRemixOrigin(USER_THEME, 'light');
 
@@ -34,13 +33,11 @@ const App = () => {
       <_app>
         <Remix />
         <GlobalStyles />
-        <_view $vh={vh}>
-          <Routes>
-            <Route exact path={PUBLIC_HOME} element={<Home />} />
-            <Route path={`${PUBLIC_GAME}/:view?`} element={<Game />} />
-            <Route path={`${PUBLIC_GAME}/*`} element={<Game />} />
-          </Routes>
-        </_view>
+        <Routes>
+          <Route exact path={PUBLIC_HOME} element={<Home />} />
+          <Route path={`${PUBLIC_GAME}/:view?`} element={<Game />} />
+          <Route path={`${PUBLIC_GAME}/*`} element={<Game />} />
+        </Routes>
       </_app>
     </ThemeProvider>
   );
