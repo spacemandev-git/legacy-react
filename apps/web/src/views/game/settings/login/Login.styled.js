@@ -14,10 +14,18 @@ export const _create = styled.button`
   margin-right: 16px;
   padding: 4px 8px;
 
-  ${({ $active }) => {
+  ${({ $active, $taken, $unInit }) => {
     if ($active)
       return css`
         background-color: gold;
+      `;
+    if ($taken)
+      return css`
+        background-color: green;
+      `;
+    if ($unInit)
+      return css`
+        background-color: blue;
       `;
   }}
 `;

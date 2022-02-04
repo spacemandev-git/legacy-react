@@ -15,18 +15,20 @@ import {
   _login,
   _pubKey,
 } from '../Login/Login.styled';
-import { PlayerActions } from '@legacy/client';
+import { PlayerActions, CardActions } from '@legacy/client';
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 import { BN } from '@project-serum/anchor';
 
 const ActionsDemo = ({
   player,
   playerActions,
+  cardActions,
   game,
   client,
 }: {
   player: Player;
   playerActions: PlayerActions;
+  cardActions: CardActions;
   game: Game;
   client: LegacyClient;
 }) => {
@@ -37,7 +39,7 @@ const ActionsDemo = ({
   const handlePlaceSelection = async (loc: Coords) => {
     if (activeCard) {
       console.log(
-        playerActions.playCard(
+        await playerActions.playCard(
           localStorage.getItem('gameName'),
           loc,
           activeCard,
@@ -53,6 +55,33 @@ const ActionsDemo = ({
         client.program.programId,
       );
       console.log(await client.program.account.location.fetch(locAccount));
+
+      try {
+        const cardId = await cardActions.scanForCards(
+          localStorage.getItem('gameName'),
+          loc,
+        );
+        const [cardPubKey] = await findProgramAddressSync(
+          [
+            Buffer.from(localStorage.getItem('gameName') || ''),
+            Buffer.from(cardId),
+          ],
+          client.program.programId,
+        );
+
+        console.log(player);
+
+        const cardAccount = client.program.account.card.fetch(cardPubKey);
+
+        console.log(cardAccount);
+
+        // const card = await cardActions.redeemCard(
+        //   localStorage.getItem('gameName'),
+        //   cardAccount,
+        // );
+      } catch (_e) {
+        console.log(_e);
+      }
     }
   };
 
@@ -62,7 +91,9 @@ const ActionsDemo = ({
         'surroundingTiles',
         PlayerActions.getSurroundingTiles(game.locations, game.locations[0]),
       );
-      setLocations();
+      playerActions
+        .getLocationAccounts(localStorage.getItem('gameName'), game.locations)
+        .then((locations) => setLocations(locations));
       setUninitializedTiles(
         PlayerActions.getSurroundingTiles(game.locations, game.locations[0]),
       );
@@ -85,39 +116,64 @@ const ActionsDemo = ({
               }}
               $active={activeCard === card.id.toString()}
             >
-              ({card.id.toString()}, {card.cardType.toString()},{' '}
-              {card.dropTable.toString()})
+              ({card.id.toString()},{' '}
+              {card.cardType?.unit?.unit?.name ||
+                card.cardType?.unitMod?.umod?.name}
+              , {Object.getOwnPropertyNames(card.dropTable)?.[0]})
             </_create>
           ))}
         </>
       ) : null}
       {game ? (
         <>
-          <_description>Available tiles:</_description>
-          <_description>
-            {game.locations.map((loc: Coords) => (
-              <_create
-                onClick={() => {
-                  handlePlaceSelection(loc);
-                }}
-              >
-                ({loc.x},{loc.y})
-              </_create>
-            ))}
-          </_description>
-          <_description>Occupied tiles:</_description>
-          <_description>Uninitialized tiles:</_description>
-          <_description>
-            {uninitializedTiles.map((loc: Coords) => (
-              <_create
-                onClick={() => {
-                  // handlePlaceSelection(loc);
-                }}
-              >
-                ({loc.x},{loc.y})
-              </_create>
-            ))}
-          </_description>
+          <_description>Tiles:</_description>
+          {locations
+            ?.concat(uninitializedTiles)
+            ?.map((loc: Location | Coords) => {
+              const castedLocation = loc as Location;
+              const castedCoords = loc as Coords;
+              console.log(loc);
+              if (castedLocation.gameAcc) {
+                return (
+                  <>
+                    {castedLocation.coords.y === 0 &&
+                    castedLocation.coords.x !== 0 ? (
+                      <br />
+                    ) : null}
+                    <_create
+                      key={castedLocation.coords.x + castedLocation.coords.y}
+                      onClick={() => {
+                        handlePlaceSelection(castedLocation.coords);
+                      }}
+                      style={{ width: 100, height: 80, marginBottom: 16 }}
+                      $taken={castedLocation.tileOwner}
+                    >
+                      ({castedLocation.coords.x},{castedLocation.coords.y})
+                      {castedLocation.troops
+                        ? `(${castedLocation.troops.name})`
+                        : null}
+                    </_create>
+                  </>
+                );
+              } else {
+                return (
+                  <>
+                    {castedCoords.y === 0 && castedCoords.x !== 0 ? (
+                      <br />
+                    ) : null}
+                    <_create
+                      onClick={() => {
+                        // handlePlaceSelection(loc);
+                      }}
+                      style={{ width: 100, height: 80, marginBottom: 16 }}
+                      $unInit
+                    >
+                      ({castedCoords.x},{castedCoords.y})
+                    </_create>
+                  </>
+                );
+              }
+            })}
         </>
       ) : null}
     </_login>

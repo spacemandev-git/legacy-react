@@ -110,22 +110,47 @@ export interface Card {
   cardType: CardType;
 }
 
+export interface CardType {
+  none?: {};
+  unitMod?: {
+    umod: {
+      name: string;
+      link: string;
+      class?: { infantry?: {}; aircraft?: {}; armor?: {} };
+      range: number;
+      power: number;
+      mod_inf: number;
+      mod_armor: number;
+      mod_air: number;
+      recovery: number;
+    };
+  };
+  unit?: {
+    unit: {
+      class?: { infantry?: {}; aircraft?: {}; armor?: {} };
+      lastMoved: anchor.BN;
+      link: string;
+      modAir: number;
+      modArmor: number;
+      modInf: number;
+      name: string;
+      power: number;
+      range: number;
+      recovery: number;
+    };
+  };
+}
+
 export interface RedeemableCard {
   dropTable: DropTable;
   id: number;
 }
 
-export enum DropTable {
-  None,
-  Basic,
-  Rare,
-  Legendary,
-}
-
-export enum CardType {
-  None,
-  Unit,
-  UnitMod,
+export interface DropTable {
+  none?: {};
+  basic?: {};
+  rare?: {};
+  legendary?: {};
 }
 
 export interface Game {
@@ -145,9 +170,9 @@ export interface Coords {
 }
 
 export interface Location {
-  game_acc: PublicKey;
+  gameAcc: PublicKey;
   coords: Coords;
   feature?: Feature;
   troops?: Troop;
-  tile_owner?: PublicKey;
+  tileOwner?: PublicKey;
 }

@@ -131,13 +131,18 @@ export const useLegacyEvents = async (wallet?: Wallet) => {
 
 export const useCardActions = (wallet?: Wallet): CardActions => {
   const client = useClient(wallet);
+  const [cardActions, setCardActions] = useState<CardActions>(null);
+  const handleAction = async () => {
+    setCardActions(await CardActions.load(client, wallet.publicKey));
+  };
 
-  return useMemo(() => {
+  useEffect(() => {
     if (wallet) {
-      return CardActions.load(client, wallet.publicKey);
+      handleAction();
     }
-    return null;
-  }, [client, wallet]);
+  }, [wallet]);
+
+  return cardActions;
 };
 
 export const useUnitActions = (wallet?: Wallet): UnitActions => {

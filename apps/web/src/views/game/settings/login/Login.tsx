@@ -76,7 +76,6 @@ const Login = () => {
           [Buffer.from(localStorage.getItem('gameName'))],
           client.program.programId,
         );
-        const gameAccount = await client.program.account.game.fetch(gamePubKey);
         player = await client.program.account.player.fetch(playerAccount);
         setPlayer(player);
 
@@ -97,6 +96,7 @@ const Login = () => {
       )
       .then((obj) => {
         console.log('!DONE', obj);
+        checkPlayerExists();
       });
   };
 
@@ -156,6 +156,7 @@ const Login = () => {
                 player={player}
                 game={game}
                 playerActions={playerActions}
+                cardActions={cardActions}
                 client={client}
               />
             </>

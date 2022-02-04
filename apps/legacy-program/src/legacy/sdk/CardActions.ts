@@ -31,22 +31,23 @@ export class CardActions {
     const [locAccount] = await findProgramAddressSync(
       [
         Buffer.from(gameName || ''),
-        Buffer.from(loc.x.toString()),
-        Buffer.from(loc.y.toString()),
+        new anchor.BN(loc.x).toArrayLike(Buffer, 'be', 1),
+        new anchor.BN(loc.y).toArrayLike(Buffer, 'be', 1),
       ],
       this.client.program.programId,
     );
 
-    const scannedLocation = this.client.program.rpc.scan({
+    const scannedLocation = await this.client.program.rpc.scan({
       accounts: {
         game: gameAccount,
         location: locAccount,
-        player: this.playerPubkey,
-        authority: playerAccount,
+        player: playerAccount,
+        authority: this.playerPubkey,
       },
     });
 
     console.log(scannedLocation);
+    return scannedLocation;
   }
   async redeemCard(gameName: string, card: Card) {
     const [playerAccount] = await findProgramAddressSync(
@@ -60,14 +61,15 @@ export class CardActions {
       this.client.program.programId,
     );
 
-    const redeemedCard = this.client.program.rpc.redeem({
+    const redeemedCard = await this.client.program.rpc.redeem({
       accounts: {
-        player: this.playerPubkey,
-        authority: playerAccount,
+        player: playerAccount,
+        authority: this.playerPubkey,
         card: cardAccount,
       },
     });
 
     console.log(redeemedCard);
+    return redeemedCard;
   }
 }
