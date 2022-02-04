@@ -8,6 +8,12 @@ const MapProps = (scene) => {
     subscriber.next(next_state);
   };
 
+  const initPlayer = () => {
+    // Call some stuff
+
+    setState({ ...state });
+  };
+
   scene.prototype.props = {
     setState,
   };
