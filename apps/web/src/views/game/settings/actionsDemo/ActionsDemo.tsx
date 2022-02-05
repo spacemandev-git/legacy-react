@@ -35,50 +35,74 @@ const ActionsDemo = ({
   const [activeCard, setActiveCard] = useState<Card>();
   const [uninitializedTiles, setUninitializedTiles] = useState<Coords[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
+  const [activeLocation, setActiveLocation] = useState<Location>(null);
 
-  const handlePlaceSelection = async (loc: Coords) => {
+  const handlePlaceSelection = async (
+    loc: Coords,
+    isInitialized: boolean = true,
+  ) => {
     if (activeCard) {
-      console.log(
-        await playerActions.playCard(
-          localStorage.getItem('gameName'),
-          loc,
-          activeCard,
-        ),
+      await playerActions.playCard(
+        localStorage.getItem('gameName'),
+        loc,
+        activeCard,
       );
     } else {
-      const [locAccount] = await findProgramAddressSync(
-        [
-          Buffer.from(localStorage.getItem('gameName') || ''),
-          new BN(loc.x).toArrayLike(Buffer, 'be', 1),
-          new BN(loc.y).toArrayLike(Buffer, 'be', 1),
-        ],
-        client.program.programId,
-      );
-      console.log(await client.program.account.location.fetch(locAccount));
-
       try {
-        const cardId = await cardActions.scanForCards(
-          localStorage.getItem('gameName'),
-          loc,
-        );
-        const [cardPubKey] = await findProgramAddressSync(
+        const [locPubKey] = await findProgramAddressSync(
           [
             Buffer.from(localStorage.getItem('gameName') || ''),
-            Buffer.from(cardId),
+            new BN(loc.x).toArrayLike(Buffer, 'be', 1),
+            new BN(loc.y).toArrayLike(Buffer, 'be', 1),
           ],
           client.program.programId,
         );
 
-        console.log(player);
+        if (isInitialized) {
+          const locAccount = (await client.program.account.location.fetch(
+            locPubKey,
+          )) as Location;
 
-        const cardAccount = client.program.account.card.fetch(cardPubKey);
+          if (
+            activeLocation?.coords?.x === locAccount.coords.x &&
+            activeLocation?.coords?.y === locAccount.coords.y
+          ) {
+            setActiveLocation(null);
+          } else {
+            setActiveLocation(locAccount);
+          }
+          // if (locAccount.feature.name !== 'blank_space') {
+          //   await cardActions.scanForCards(
+          //     localStorage.getItem('gameName'),
+          //     loc,
+          //   );
+          //   const [playerAccount] = await findProgramAddressSync(
+          //     [
+          //       Buffer.from(localStorage.getItem('gameName')),
+          //       client.program.provider.wallet.publicKey.toBuffer(),
+          //     ],
+          //     client.program.programId,
+          //   );
 
-        console.log(cardAccount);
+          //   const newPlayer = await client.program.account.player.fetch(
+          //     playerAccount,
+          //   );
+          // }
+        } else {
+          if (activeLocation) {
+            await playerActions.initLocBySpawn(
+              localStorage.getItem('gameName'),
+              loc,
+              activeLocation.coords,
+            );
 
-        // const card = await cardActions.redeemCard(
-        //   localStorage.getItem('gameName'),
-        //   cardAccount,
-        // );
+            await playerActions.moveTroops(
+              localStorage.getItem('gameName'),
+              activeLocation.coords,
+              loc,
+            );
+          }
+        }
       } catch (_e) {
         console.log(_e);
       }
@@ -87,16 +111,10 @@ const ActionsDemo = ({
 
   useEffect(() => {
     if (game) {
-      console.log(
-        'surroundingTiles',
-        PlayerActions.getSurroundingTiles(game.locations, game.locations[0]),
-      );
       playerActions
         .getLocationAccounts(localStorage.getItem('gameName'), game.locations)
         .then((locations) => setLocations(locations));
-      setUninitializedTiles(
-        PlayerActions.getSurroundingTiles(game.locations, game.locations[0]),
-      );
+      setUninitializedTiles(PlayerActions.getSurroundingTiles(game.locations));
     }
   }, [game]);
 
@@ -129,15 +147,24 @@ const ActionsDemo = ({
           <_description>Tiles:</_description>
           {locations
             ?.concat(uninitializedTiles)
+            .sort((first, second) => {
+              const castedFirst = (first.coords || first) as Coords;
+              const castedSecond = (second.coords || second) as Coords;
+
+              if (castedFirst.y === castedSecond.y) {
+                return castedFirst.x - castedSecond.x;
+              } else {
+                return castedFirst.y - castedSecond.y;
+              }
+            })
             ?.map((loc: Location | Coords) => {
               const castedLocation = loc as Location;
               const castedCoords = loc as Coords;
-              console.log(loc);
               if (castedLocation.gameAcc) {
                 return (
                   <>
-                    {castedLocation.coords.y === 0 &&
-                    castedLocation.coords.x !== 0 ? (
+                    {castedLocation.coords.y !== 0 &&
+                    castedLocation.coords.x === 0 ? (
                       <br />
                     ) : null}
                     <_create
@@ -147,6 +174,10 @@ const ActionsDemo = ({
                       }}
                       style={{ width: 100, height: 80, marginBottom: 16 }}
                       $taken={castedLocation.tileOwner}
+                      $active={
+                        activeLocation?.coords?.x === castedLocation.coords.x &&
+                        activeLocation?.coords?.y === castedLocation.coords.y
+                      }
                     >
                       ({castedLocation.coords.x},{castedLocation.coords.y})
                       {castedLocation.troops
@@ -158,12 +189,12 @@ const ActionsDemo = ({
               } else {
                 return (
                   <>
-                    {castedCoords.y === 0 && castedCoords.x !== 0 ? (
+                    {castedCoords.y !== 0 && castedCoords.x === 0 ? (
                       <br />
                     ) : null}
                     <_create
                       onClick={() => {
-                        // handlePlaceSelection(loc);
+                        handlePlaceSelection(castedCoords, false);
                       }}
                       style={{ width: 100, height: 80, marginBottom: 16 }}
                       $unInit
