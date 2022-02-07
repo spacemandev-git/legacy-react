@@ -143,11 +143,21 @@ export const CardScene = CardProps(
       // this.input.setDraggable(eye_img);
 
       // Title
-      this.title = this.add.text(40, 14, 'Legacy', {
-        font: '32px Arial Black',
-        fill: '#fff',
-      });
+      this.title = this.add
+        .text(40, 14, 'Legacy', {
+          font: '32px Arial Black',
+          fill: '#fff',
+        })
+        .setInteractive({ cursor: 'pointer' });
+
       this.title.setShadow(2, 2, '#333333', 2, true, true);
+
+      // Go home on click
+      this.title.on('pointerdown', () => {
+        console.log();
+        const state = subscriber.getValue();
+        state.history('/');
+      });
 
       // Control Hover Start
       this.input.on('pointerover', function (pointer, gameObject) {
@@ -228,6 +238,8 @@ export const CardScene = CardProps(
       // When cards are updated render card list
       if (state.cards) {
         let card_list = [];
+
+        console.log(state);
 
         let count = 1;
         for (let i = 1; i <= state.cards.length; i++) {

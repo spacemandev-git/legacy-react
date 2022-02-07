@@ -18,6 +18,7 @@ import {
 } from '../../../../hooks/useClient';
 import { web3 } from '@project-serum/anchor';
 import NodeWallet, { Wallet } from '../../../../../../libs/chain/NodeWallet';
+import { subscriber } from 'web/client';
 
 const Login = () => {
   const [value, setValue] = useState('');
@@ -107,6 +108,11 @@ const Login = () => {
   useEffect(() => {
     console.log(game);
   }, [game]);
+
+  useEffect(() => {
+    const state = subscriber.getValue();
+    subscriber.next({...state, wallet, game, player, client});
+  }, [wallet, game, player, client]);
 
   return (
     <_login>

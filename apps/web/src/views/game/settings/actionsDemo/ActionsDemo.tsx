@@ -106,7 +106,7 @@ const ActionsDemo = ({
         <>
           <_description>
             Hello {player.name}, you have {player.cards?.length} cards and{' '}
-            {player.redeemableCards?.length} reddemable cards.
+            {player.redeemableCards?.length} redeemable cards.
           </_description>
           {player.cards.map((card: Card) => (
             <_create
