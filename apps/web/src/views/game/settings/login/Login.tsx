@@ -106,18 +106,22 @@ const Login = () => {
   };
 
   useEffect(() => {
-    console.log(game);
-  }, [game]);
+    let localSecret = localStorage.getItem(LOCAL_SECRET);
+    if (localSecret) {
+      let wallet = web3.Keypair.fromSecretKey(bs58.decode(localSecret));
+      setWallet(wallet);
+    }
+  }, []);
 
   useEffect(() => {
     const state = subscriber.getValue();
-    subscriber.next({...state, wallet, game, player, client});
+    subscriber.next({ ...state, wallet, game, player, client });
   }, [wallet, game, player, client]);
 
   return (
     <_login>
       <h2 style={{ marginBottom: '16px' }}>Welcome to Legacy SOL</h2>
-      {!optionSelected ? (
+      {!optionSelected && !wallet ? (
         <>
           <_create
             onClick={() => {
