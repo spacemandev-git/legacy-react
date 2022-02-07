@@ -73,7 +73,7 @@ export const GlobalStyles = createGlobalStyle`
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE 10+ */
     box-sizing: border-box;
-    user-select: none;
+    /* user-select: none; */
     font-weight: 500;
     &::-webkit-scrollbar {
       display: none;
@@ -112,7 +112,6 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   #app {
-    height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -120,7 +119,17 @@ export const GlobalStyles = createGlobalStyle`
   }
 `;
 
-export const _app = styled.div`
+export const _app = styled.div``;
+
+export const _view = styled.div`
+  width: 100%;
+  min-width: 100%;
+  min-height: ${({ $vh }) => `calc(${$vh}px * 100)`};
+  height: ${({ $vh }) => `calc(${$vh}px * 100)`};
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 2px;
+
   position: relative;
   z-index: ${({ theme }) => theme.zindex.app};
   width: 100%;
@@ -139,14 +148,4 @@ export const _app = styled.div`
   ${media.tablet`
     padding: 2px;
   `}
-`;
-
-export const _view = styled.div`
-  width: 100%;
-  min-width: 100%;
-  min-height: ${({ $vh }) => `calc(${$vh}px * 100)`};
-  height: ${({ $vh }) => `calc(${$vh}px * 100)`};
-  display: flex;
-  justify-content: space-between;
-  padding-bottom: 2px;
 `;

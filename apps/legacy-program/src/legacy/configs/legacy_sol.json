@@ -1,0 +1,1009 @@
+{
+  "version": "0.1.0",
+  "name": "legacy_sol",
+  "instructions": [
+    {
+      "name": "createGame",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "gameAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "startLocation",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "bump",
+          "type": "u8"
+        },
+        {
+          "name": "0LocBump",
+          "type": "u8"
+        },
+        {
+          "name": "startingCard",
+          "type": {
+            "defined": "Card"
+          }
+        }
+      ]
+    },
+    {
+      "name": "initPlayer",
+      "accounts": [
+        {
+          "name": "game",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "playerAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bump",
+          "type": "u8"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "addFeatures",
+      "accounts": [
+        {
+          "name": "game",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "newFeatures",
+          "type": {
+            "vec": {
+              "defined": "Feature"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "initCard",
+      "accounts": [
+        {
+          "name": "game",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "cardAcc",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "card",
+          "type": {
+            "defined": "Card"
+          }
+        },
+        {
+          "name": "bmp",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "initLocation",
+      "accounts": [
+        {
+          "name": "game",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "location",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "connectingLoc",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "x",
+          "type": "i8"
+        },
+        {
+          "name": "y",
+          "type": "i8"
+        },
+        {
+          "name": "bmp",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "scan",
+      "accounts": [
+        {
+          "name": "game",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "location",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "redeem",
+      "accounts": [
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "card",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "playCard",
+      "accounts": [
+        {
+          "name": "game",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "location",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "idx",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "moveTroops",
+      "accounts": [
+        {
+          "name": "game",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "destination",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "attack",
+      "accounts": [
+        {
+          "name": "game",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "destination",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "debug",
+      "accounts": [],
+      "args": [
+        {
+          "name": "x",
+          "type": {
+            "vec": {
+              "defined": "DebugStruct"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Game",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "enabled",
+            "type": "bool"
+          },
+          {
+            "name": "features",
+            "type": {
+              "vec": {
+                "defined": "Feature"
+              }
+            }
+          },
+          {
+            "name": "locations",
+            "type": {
+              "vec": {
+                "defined": "Coords"
+              }
+            }
+          },
+          {
+            "name": "startingCard",
+            "type": {
+              "defined": "Card"
+            }
+          },
+          {
+            "name": "decks",
+            "type": {
+              "defined": "DeckLen"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Player",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "cards",
+            "type": {
+              "vec": {
+                "defined": "Card"
+              }
+            }
+          },
+          {
+            "name": "redeemableCards",
+            "type": {
+              "vec": {
+                "defined": "RedeemableCard"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Location",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "gameAcc",
+            "type": "publicKey"
+          },
+          {
+            "name": "coords",
+            "type": {
+              "defined": "Coords"
+            }
+          },
+          {
+            "name": "feature",
+            "type": {
+              "option": {
+                "defined": "Feature"
+              }
+            }
+          },
+          {
+            "name": "troops",
+            "type": {
+              "option": {
+                "defined": "Troop"
+              }
+            }
+          },
+          {
+            "name": "tileOwner",
+            "type": {
+              "option": "publicKey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CardTemplate",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "card",
+            "type": {
+              "defined": "Card"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "DeckLen",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "basic",
+            "type": "u64"
+          },
+          {
+            "name": "rare",
+            "type": "u64"
+          },
+          {
+            "name": "legendary",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RedeemableCard",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "dropTable",
+            "type": {
+              "defined": "DropTable"
+            }
+          },
+          {
+            "name": "id",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Feature",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "dropTable",
+            "type": {
+              "option": {
+                "defined": "DropTable"
+              }
+            }
+          },
+          {
+            "name": "link",
+            "type": "string"
+          },
+          {
+            "name": "weight",
+            "type": "u8"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "scanRecovery",
+            "type": "u64"
+          },
+          {
+            "name": "lastScanned",
+            "type": "u64"
+          },
+          {
+            "name": "timesScanned",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Troop",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "link",
+            "type": "string"
+          },
+          {
+            "name": "class",
+            "type": {
+              "defined": "TroopClass"
+            }
+          },
+          {
+            "name": "range",
+            "type": "u8"
+          },
+          {
+            "name": "power",
+            "type": "u8"
+          },
+          {
+            "name": "modInf",
+            "type": "i8"
+          },
+          {
+            "name": "modArmor",
+            "type": "i8"
+          },
+          {
+            "name": "modAir",
+            "type": "i8"
+          },
+          {
+            "name": "recovery",
+            "type": "u16"
+          },
+          {
+            "name": "lastMoved",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UnitMod",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "link",
+            "type": "string"
+          },
+          {
+            "name": "class",
+            "type": {
+              "option": {
+                "defined": "TroopClass"
+              }
+            }
+          },
+          {
+            "name": "range",
+            "type": "i8"
+          },
+          {
+            "name": "power",
+            "type": "i8"
+          },
+          {
+            "name": "modInf",
+            "type": "i8"
+          },
+          {
+            "name": "modArmor",
+            "type": "i8"
+          },
+          {
+            "name": "modAir",
+            "type": "i8"
+          },
+          {
+            "name": "recovery",
+            "type": "i8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Card",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "dropTable",
+            "type": {
+              "defined": "DropTable"
+            }
+          },
+          {
+            "name": "id",
+            "type": "u64"
+          },
+          {
+            "name": "cardType",
+            "type": {
+              "defined": "CardType"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Coords",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "x",
+            "type": "i8"
+          },
+          {
+            "name": "y",
+            "type": "i8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DebugStruct",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "x",
+            "type": "u8"
+          },
+          {
+            "name": "y",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DropTable",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "Basic"
+          },
+          {
+            "name": "Rare"
+          },
+          {
+            "name": "Legendary"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TroopClass",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Infantry"
+          },
+          {
+            "name": "Armor"
+          },
+          {
+            "name": "Aircraft"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CardType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "Unit",
+            "fields": [
+              {
+                "name": "unit",
+                "type": {
+                  "defined": "Troop"
+                }
+              }
+            ]
+          },
+          {
+            "name": "UnitMod",
+            "fields": [
+              {
+                "name": "umod",
+                "type": {
+                  "defined": "UnitMod"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "NewGame",
+      "fields": [
+        {
+          "name": "gameId",
+          "type": "string",
+          "index": false
+        },
+        {
+          "name": "gameAdmin",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "NewPlayerSpawn",
+      "fields": [
+        {
+          "name": "gameAcc",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "player",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "coords",
+          "type": {
+            "defined": "Coords"
+          },
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "NewLocationInitalized",
+      "fields": [
+        {
+          "name": "gameAcc",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "coords",
+          "type": {
+            "defined": "Coords"
+          },
+          "index": false
+        },
+        {
+          "name": "feature",
+          "type": {
+            "defined": "Feature"
+          },
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "TroopsMoved",
+      "fields": [
+        {
+          "name": "gameAcc",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "from",
+          "type": {
+            "defined": "Coords"
+          },
+          "index": false
+        },
+        {
+          "name": "dest",
+          "type": {
+            "defined": "Coords"
+          },
+          "index": false
+        },
+        {
+          "name": "movingPlayerAcc",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "movingTroops",
+          "type": {
+            "defined": "Troop"
+          },
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "Combat",
+      "fields": [
+        {
+          "name": "gameAcc",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "from",
+          "type": {
+            "defined": "Coords"
+          },
+          "index": false
+        },
+        {
+          "name": "dest",
+          "type": {
+            "defined": "Coords"
+          },
+          "index": false
+        },
+        {
+          "name": "atkDmg",
+          "type": "u8",
+          "index": false
+        },
+        {
+          "name": "defDmg",
+          "type": "u8",
+          "index": false
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "You are not authorized to perform this action."
+    },
+    {
+      "code": 6001,
+      "name": "GameNotEnabled",
+      "msg": "Game is not enabled."
+    },
+    {
+      "code": 6002,
+      "name": "InvalidLocation",
+      "msg": "Invalid Location"
+    },
+    {
+      "code": 6003,
+      "name": "PlayerLacksOwnership",
+      "msg": "Player doesn't own the tile"
+    },
+    {
+      "code": 6004,
+      "name": "NoTroopsOnSelectedTile",
+      "msg": "No troops on selected tile"
+    },
+    {
+      "code": 6005,
+      "name": "DestinationOccupied",
+      "msg": "Destination tile is occupied"
+    },
+    {
+      "code": 6006,
+      "name": "WrongGameLocations",
+      "msg": "Locations from wrong game."
+    },
+    {
+      "code": 6007,
+      "name": "NoTroopsOnTarget",
+      "msg": "No troops on target tile."
+    },
+    {
+      "code": 6008,
+      "name": "DistanceExceedsTroopRange",
+      "msg": "Distance exceeds Troop Range"
+    },
+    {
+      "code": 6009,
+      "name": "NoFriendlyFire",
+      "msg": "No friendly fire allowed"
+    },
+    {
+      "code": 6010,
+      "name": "RedemptionAvailable",
+      "msg": "Scan waiting to be redeemed!"
+    },
+    {
+      "code": 6011,
+      "name": "LocationOnCooldown",
+      "msg": "Location is still in cooldown from last scan"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidCard",
+      "msg": "Invalid Card Passed In"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidMod",
+      "msg": "Mod cannot be applied to Unit."
+    },
+    {
+      "code": 6014,
+      "name": "FeatureNotScannable",
+      "msg": "Feature can't be scanned"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidUnitMod",
+      "msg": "Unit Mod doesn't match the Unit's class"
+    },
+    {
+      "code": 6016,
+      "name": "UnitRecovering",
+      "msg": "Unit is still recovering"
+    }
+  ],
+  "metadata": {
+    "address": "Cz4TVYSDxwobuiKdtZY8ejp3hWL7WfCbPNYGUqnNBVSe"
+  }
+}
