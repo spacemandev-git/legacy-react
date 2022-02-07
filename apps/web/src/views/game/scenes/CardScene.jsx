@@ -1,10 +1,38 @@
 import Phaser from 'phaser';
-import eye from 'design/assets/lance-overdose-loader-eye.png';
 import CardProps from './CardProps';
 import { subscriber } from 'web/client';
-import { forEach } from 'lodash';
+
+import balkanian1 from 'design/assets/units/balkania_1.png';
+import balkanian3 from 'design/assets/units/balkania_3.png';
+import drone1 from 'design/assets/units/drone_1.png';
+import enclave1 from 'design/assets/units/enclave_1.png';
+import enclave3 from 'design/assets/units/enclave_3.png';
+import jet1 from 'design/assets/units/jet_1.png';
+import khan1 from 'design/assets/units/khan_1.png';
+import khan3 from 'design/assets/units/khan_3.png';
+import mechaniker1 from 'design/assets/units/mechaniker_1.png';
+import mechaniker3 from 'design/assets/units/mechaniker_3.png';
+import saharan1 from 'design/assets/units/saharan_1.png';
+import saharan3 from 'design/assets/units/saharan_3.png';
+
+const BALKANIAN_1 = 'balkania_1.png';
+const BALKANIAN_3 = 'balkania_3.png';
+const DRONE_1 = 'drone_1.png';
+const ENCLAVE_1 = 'enclave_1.png';
+const ENCLAVE_3 = 'enclave_3.png';
+const JET_1 = 'jet_1.png';
+const KHAN_1 = 'khan_1.png';
+const KHAN_3 = 'khan_3.png';
+const MECHANIKER_1 = 'mechaniker_1.png';
+const MECHANIKER_3 = 'mechaniker_3.png';
+const SAHARAN_1 = 'saharan_1.png';
+const SAHARAN_3 = 'saharan_3.png';
 
 let props = {};
+
+export const getCardTypeObj = (card) => {
+  return card.cardType?.unit?.unit || card.cardType?.unitMod?.umod;
+};
 
 export const CardScene = CardProps(
   new Phaser.Class({
@@ -22,7 +50,18 @@ export const CardScene = CardProps(
     },
 
     preload: function () {
-      // this.load.image('eye', eye);
+      this.load.image(BALKANIAN_1, balkanian1);
+      this.load.image(BALKANIAN_3, balkanian3);
+      this.load.image(DRONE_1, drone1);
+      this.load.image(ENCLAVE_1, enclave1);
+      this.load.image(ENCLAVE_3, enclave3);
+      this.load.image(JET_1, jet1);
+      this.load.image(KHAN_1, khan1);
+      this.load.image(KHAN_3, khan3);
+      this.load.image(MECHANIKER_1, mechaniker1);
+      this.load.image(MECHANIKER_3, mechaniker3);
+      this.load.image(SAHARAN_1, saharan1);
+      this.load.image(SAHARAN_3, saharan3);
     },
 
     create: function () {
@@ -154,7 +193,6 @@ export const CardScene = CardProps(
 
       // Go home on click
       this.title.on('pointerdown', () => {
-        console.log();
         const state = subscriber.getValue();
         state.history('/');
       });
@@ -231,93 +269,41 @@ export const CardScene = CardProps(
     update: function () {
       const state = this.subscriber.getValue();
       const { setState } = props;
-      const { width, height } = this.scale;
-      const x = width * 0.5;
-      const y = height * 0.5;
 
-      // When cards are updated render card list
-      if (state.cards) {
+      const { player, cardsRendered } = state;
+
+      if (player?.cards?.length > 0 && !cardsRendered) {
         let card_list = [];
+        for (let i = 1; i <= player.cards.length; i++) {
+          const card = getCardTypeObj(player.cards[i - 1]);
+          this.card_ids = { ...this.card_ids, [card.link]: i };
 
-        console.log(state);
-
-        let count = 1;
-        for (let i = 1; i <= state.cards.length; i++) {
-          let next_card;
-          const card = state.cards[i - 1];
-          this.card_ids = { ...this.card_ids, [card.id]: i };
-
-          if (this.textures.exists(card.id)) {
-            next_card = this.add.image(x, y, card.id);
-            next_card.count = this.card_ids[card.id];
-            const position = next_card.count - this.page * this.page_size;
-            const card_position = {
-              [1]: [86, 200],
-              [2]: [202, 200],
-              [3]: [86, 316],
-              [4]: [202, 316],
-              [5]: [86, 432],
-              [6]: [202, 432],
-            }[position];
-            const next_sprite = this.add.sprite(
-              card_position?.[0],
-              card_position?.[1],
-              card.id,
-            );
-            next_sprite.setInteractive({ cursor: 'pointer' });
-            next_sprite.displayWidth = 88;
-            next_sprite.displayHeight = 88;
-            next_sprite.count = count;
-            next_sprite.page =
-              1 + Math.floor(next_sprite.count / (this.page_size + 0.01));
-            this.input.setDraggable(next_card);
-            count++;
-          } else {
-            next_card = this.add.image(x, y, 'card-back');
-            this.load.image(card.id, card.url);
-            this.load.once(Phaser.Loader.Events.COMPLETE, () => {
-              next_card.count = this.card_ids[card.id];
-              const position = next_card.count - this.page * this.page_size;
-              const card_position = {
-                [1]: [86, 200],
-                [2]: [202, 200],
-                [3]: [86, 316],
-                [4]: [202, 316],
-                [5]: [86, 432],
-                [6]: [202, 432],
-              }[position];
-
-              const next_sprite = this.add.sprite(
-                card_position?.[0],
-                card_position?.[1],
-                card.id,
-              );
-              next_sprite.setTexture(card.id);
-
-              next_sprite.setInteractive({ cursor: 'pointer' });
-              next_sprite.displayWidth = 88;
-              next_sprite.count = this.card_ids[card.id];
-              next_sprite.displayHeight = 88;
-              next_sprite.page = Math.floor(
-                next_sprite.count / (this.page_size + 0.01),
-              );
-              this.input.setDraggable(next_sprite);
-
-              // If not on first page setVisible false
-              if (next_sprite.page !== this.page) {
-                console.log('hide', next_sprite);
-                next_sprite.setVisible(false);
-              }
-              card_list.push({ card: next_sprite });
-            });
-            this.load.start();
-          }
-          count++;
+          const position = i - this.page * this.page_size;
+          const card_position = {
+            [1]: [86, 200],
+            [2]: [202, 200],
+            [3]: [86, 316],
+            [4]: [202, 316],
+            [5]: [86, 432],
+            [6]: [202, 432],
+          }[position];
+          const next_sprite = this.add.sprite(
+            card_position?.[0],
+            card_position?.[1],
+            card.link,
+          );
+          next_sprite.setInteractive({ cursor: 'pointer' });
+          next_sprite.displayWidth = 88;
+          next_sprite.displayHeight = 88;
+          next_sprite.count = i;
+          next_sprite.page =
+            1 + Math.floor(next_sprite.count / (this.page_size + 0.01));
+          this.input.setDraggable(next_sprite);
         }
 
         this.card_list = card_list;
 
-        setState({ ...state, cards: undefined });
+        setState({ ...state, cardsRendered: true });
       }
     },
   }),
