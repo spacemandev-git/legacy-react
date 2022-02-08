@@ -10,7 +10,7 @@ import Game from './src/views/game/Game';
 import Home from './src/views/home/Home';
 import { useMobileHeight } from 'core/hooks/useMobileHeight';
 import Remix from './src/remix/Remix';
-
+// import {RpcNodeContextProvider} from './contexts/rpceNode'
 const withThemes = ({ palette = 'dark' }) => ({
   ...theme[palette],
   styles,
@@ -22,9 +22,12 @@ const App = () => {
   const [theme] = useRemixOrigin(USER_THEME, 'light');
 
   useEffect(() => {
+    if (!localStorage.getItem('legacyPreferredNode')) {
+      localStorage.setItem('legacyPreferredNode', 'http://127.0.0.1:8899');
+    }
     // Set current active game but can be changed in settings
     if (!localStorage.getItem('gameName')) {
-      localStorage.setItem('gameName', 'testgame');
+      localStorage.setItem('gameName', 'testgame1');
     }
   });
 

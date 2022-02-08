@@ -13,8 +13,8 @@
     "build": "rimraf build && cross-env REACT_APP_ENV=production parcel build public/index.html --dist-dir build/ --no-source-maps --no-scope-hoist --no-cache --public-url ."
   },
   "dependencies": {
-    "@legacy/client": "file:../legacy-program",
     "@babel/runtime-corejs3": "7.13.10",
+    "@legacy/client": "file:../legacy-program",
     "@parcel/transformer-image": "^2.0.0-nightly.1981",
     "@pixi/loaders": "^6.2.1",
     "@pixi/tilemap": "^3.2.2",
@@ -24,6 +24,7 @@
     "@solana/spl-token-registry": "0.2.46",
     "@solana/wallet-adapter-react": "^0.15.2",
     "@svgdotjs/svg.js": "3.0.16",
+    "@types/react": "^17.0.39",
     "@widgetbot/react-embed": "1.4.0",
     "btoa": "1.2.1",
     "chroma-js": "2.1.1",

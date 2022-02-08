@@ -14,7 +14,11 @@ export const _create = styled.button`
   margin-right: 16px;
   padding: 4px 8px;
 
-  ${({ $active, $taken, $unInit }) => {
+  ${({ $active, $taken, $unInit, $userOwned }) => {
+    if ($userOwned)
+      return css`
+        background-color: pink;
+      `;
     if ($active)
       return css`
         background-color: gold;
@@ -44,4 +48,11 @@ export const _pubKey = styled.div`
 export const _description = styled.p`
   padding-bottom: 8px;
   color: gray;
+`;
+
+export const _title = styled.p`
+  color: white;
+  font-weight: 700;
+  line-height: 1.2;
+  font-size: 40px;
 `;

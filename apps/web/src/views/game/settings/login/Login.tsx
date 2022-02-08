@@ -149,7 +149,7 @@ const Login = () => {
               </_create>
             </>
           ) : null}
-          {player ? (
+          {wallet && player ? (
             <>
               <_description>You are signed in!</_description>
               <ActionsDemo

@@ -18,12 +18,13 @@ const RpcNodeContext = createContext<RpcNode>({
 // RPC node context provider
 export function RpcNodeContextProvider(props: { children: any }) {
   const [preferredNode, setPreferredNode] = useState(
-    localStorage.getItem('jetPreferredNode') ?? null,
+    localStorage.getItem('legacyPreferredNode') ?? null,
   );
+
   const [ping, setPing] = useState(0);
 
   // Update ping whenever connection changes
-  const { connection } = useProvider();
+  const { connection } = useProvider('');
   useEffect(() => {
     const getPing = async () => {
       const startTime = Date.now();
@@ -62,10 +63,10 @@ export const useRpcNode = () => {
     updateRpcNode: (rpcNodeInput?: string) => {
       // TODO: Will this update useProvider without being a dependency?
       if (rpcNodeInput) {
-        localStorage.setItem('jetPreferredNode', rpcNodeInput);
+        localStorage.setItem('legacyPreferredNode', 'http://127.0.0.1:8899');
         setPreferredNode(rpcNodeInput);
       } else {
-        localStorage.removeItem('jetPreferredNode');
+        localStorage.removeItem('legacyPreferredNode');
         setPreferredNode(null);
       }
 

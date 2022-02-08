@@ -78,7 +78,13 @@ export const usePlayerActions = (wallet?: Wallet): PlayerActions => {
   const [playerActions, setPlayerActions] = useState<PlayerActions>(null);
 
   const handleAction = async () => {
-    setPlayerActions(await PlayerActions.load(client, wallet.publicKey));
+    if (wallet?.publicKey) {
+      console.log(
+        'created player actions with pubkey: ',
+        wallet.publicKey.toBase58(),
+      );
+      setPlayerActions(await PlayerActions.load(client, wallet.publicKey));
+    }
   };
 
   useEffect(() => {
